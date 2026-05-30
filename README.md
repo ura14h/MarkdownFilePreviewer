@@ -26,7 +26,7 @@ A simple, lightweight web-based markdown previewer that renders `.md`, `.markdow
 - `.txt` files
 
 ### Recent Files
-- Access recently opened files via the sidebar (click the 📁 icon)
+- Access recently opened files via the right sidebar (click the left icon)
 - Files are automatically added when opened
 - Remove individual files or clear all recent files
 - Recent files persist during your browser session
@@ -37,11 +37,16 @@ You can also load markdown files directly from URLs by adding a `file` parameter
 index.html?file=https://raw.githubusercontent.com/user/repo/main/README.md
 ```
 
+### Table of Contents
+- Access the table of contents via the right sidebar (click the right icon in the file name header)
+- Click an item in the table of contents to scroll to that header.
+
 ## Technical Details
 
 Built with:
 - [Marked.js](https://marked.js.org/) for markdown parsing
 - [Prism.js](https://prismjs.com/) for syntax highlighting
+- [Mermaid.js](https://mermaid.js.org/) for mermaid parsing
 - Vanilla JavaScript (no frameworks)
 - GitHub-inspired CSS styling
 
