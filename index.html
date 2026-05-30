@@ -482,34 +482,41 @@
         background: #eaeef2;
       }
 
-      /* TOC toggle button (inside preview-header) */
-      .toc-toggle {
-        margin-left: auto;
-        background: none;
+      /* TOC toggle button (floating, right side) */
+      .toc-toggle-floating {
+        position: fixed;
+        top: 20px;
+        right: 0;
+        background: #f6f8fa;
         color: #656d76;
         border: 1px solid #d0d7de;
-        border-radius: 6px;
-        width: 28px;
-        height: 28px;
+        width: 40px;
+        height: 40px;
+        border-radius: 6px 0 0 6px;
         cursor: pointer;
-        display: flex;
+        display: none;
         align-items: center;
         justify-content: center;
+        z-index: 1001;
+        transition: all 0.3s ease;
+        padding: 0;
         flex-shrink: 0;
-        transition:
-          background 0.15s,
-          color 0.15s;
       }
 
-      .toc-toggle:hover {
+      .toc-toggle-floating:hover {
         background: #eaeef2;
         color: #24292f;
       }
 
-      .toc-toggle.active {
+      .toc-toggle-floating.active {
         background: #dbeafe;
         color: #0969da;
         border-color: #0969da;
+      }
+
+      .toc-toggle-floating.hidden {
+        opacity: 0;
+        pointer-events: none;
       }
 
       /* TOC sidebar */
@@ -624,11 +631,19 @@
     </style>
   </head>
   <body>
-    <!-- Floating sidebar toggle -->
+    <!-- Floating sidebar toggles -->
     <button class="sidebar-toggle" id="sidebarToggle">
       <svg class="file-icon" viewBox="0 0 16 16">
         <path
           d="M1.75 2.5h12.5a.75.75 0 0 1 0 1.5H1.75a.75.75 0 0 1 0-1.5Zm0 5h12.5a.75.75 0 0 1 0 1.5H1.75a.75.75 0 0 1 0-1.5Zm0 5h12.5a.75.75 0 0 1 0 1.5H1.75a.75.75 0 0 1 0-1.5Z"
+        />
+      </svg>
+    </button>
+
+    <button class="toc-toggle-floating" id="tocToggleFloating" title="Table of Contents">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+        <path
+          d="M1 2.75A.75.75 0 0 1 1.75 2h12.5a.75.75 0 0 1 0 1.5H1.75A.75.75 0 0 1 1 2.75Zm0 5A.75.75 0 0 1 1.75 7h6.5a.75.75 0 0 1 0 1.5h-6.5A.75.75 0 0 1 1 7.75ZM1.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5Z"
         />
       </svg>
     </button>
@@ -701,18 +716,6 @@
             />
           </svg>
           <span id="fileName">&nbsp;</span>
-          <button
-            class="toc-toggle"
-            id="tocToggle"
-            title="Table of Contents"
-            style="display: none"
-          >
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-              <path
-                d="M1 2.75A.75.75 0 0 1 1.75 2h12.5a.75.75 0 0 1 0 1.5H1.75A.75.75 0 0 1 1 2.75Zm0 5A.75.75 0 0 1 1.75 7h6.5a.75.75 0 0 1 0 1.5h-6.5A.75.75 0 0 1 1 7.75ZM1.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5Z"
-              />
-            </svg>
-          </button>
         </div>
         <div class="preview-content">
           <div class="empty-state" id="emptyState">
@@ -745,7 +748,7 @@
       const clearAllBtn = document.getElementById("clearAllBtn");
 
       // TOC sidebar elements
-      const tocToggle = document.getElementById("tocToggle");
+      const tocToggle = document.getElementById("tocToggleFloating");
       const tocSidebar = document.getElementById("tocSidebar");
       const tocClose = document.getElementById("tocClose");
       const tocList = document.getElementById("tocList");
@@ -832,6 +835,7 @@
       function closeTocSidebar() {
         tocSidebar.classList.remove("open");
         tocToggle.classList.remove("active");
+        tocToggle.classList.remove("hidden");
       }
 
       function closeSidebars() {
@@ -855,6 +859,7 @@
         } else {
           tocSidebar.classList.add("open");
           tocToggle.classList.add("active");
+          tocToggle.classList.add("hidden");
         }
       });
 
@@ -1096,6 +1101,7 @@
           // Build table of contents
           buildToc();
           tocToggle.style.display = "flex";
+          tocToggle.classList.remove("hidden");
 
           // Add to recent files
           addToRecentFiles(filename, content);
