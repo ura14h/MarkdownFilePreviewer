@@ -269,6 +269,13 @@
             z-index: 1001;
             transition: all 0.3s ease;
             font-size: 16px;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .sidebar-toggle.hidden {
+            opacity: 0;
+            pointer-events: none;
         }
 
         .sidebar-toggle:hover {
@@ -534,16 +541,19 @@
         // Sidebar functionality
         sidebarToggle.addEventListener('click', () => {
             sidebar.classList.add('open');
+            sidebarToggle.classList.add('hidden');
         });
 
         sidebarClose.addEventListener('click', () => {
             sidebar.classList.remove('open');
+            sidebarToggle.classList.remove('hidden');
         });
 
         // Close sidebar when clicking outside
         document.addEventListener('click', (e) => {
             if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
                 sidebar.classList.remove('open');
+                sidebarToggle.classList.remove('hidden');
             }
         });
 
