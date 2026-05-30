@@ -298,8 +298,8 @@
         margin-bottom: 16px;
       }
 
-      /* Floating sidebar styles */
-      .sidebar-toggle {
+      /* Left file sidebar styles */
+      .left-file-sidebar-toggle {
         position: fixed;
         top: 20px;
         left: 0;
@@ -320,17 +320,17 @@
         pointer-events: auto;
       }
 
-      .sidebar-toggle.hidden {
+      .left-file-sidebar-toggle.hidden {
         opacity: 0;
         pointer-events: none;
       }
 
-      .sidebar-toggle:hover {
+      .left-file-sidebar-toggle:hover {
         background: #eaeef2;
         color: #24292f;
       }
 
-      .sidebar {
+      .left-file-sidebar {
         position: fixed;
         top: 0;
         left: -300px;
@@ -345,11 +345,11 @@
         flex-direction: column;
       }
 
-      .sidebar.open {
+      .left-file-sidebar.open {
         left: 0;
       }
 
-      .sidebar-header {
+      .left-file-sidebar-header {
         background: #f6f8fa;
         padding: 16px;
         border-bottom: 1px solid #d0d7de;
@@ -358,7 +358,7 @@
         justify-content: space-between;
       }
 
-      .sidebar-title {
+      .left-file-sidebar-title {
         font-weight: 600;
         font-size: 14px;
         color: #24292f;
@@ -367,7 +367,7 @@
         gap: 8px;
       }
 
-      .sidebar-close {
+      .left-file-sidebar-close {
         background: none;
         border: none;
         color: #656d76;
@@ -377,7 +377,7 @@
         font-size: 16px;
       }
 
-      .sidebar-close:hover {
+      .left-file-sidebar-close:hover {
         background: #eaeef2;
         color: #24292f;
       }
@@ -479,8 +479,8 @@
         background: #eaeef2;
       }
 
-      /* TOC toggle button (floating, right side) */
-      .toc-toggle-floating {
+      /* Right TOC sidebar styles */
+      .right-toc-sidebar-toggle {
         position: fixed;
         top: 20px;
         right: 0;
@@ -500,24 +500,24 @@
         flex-shrink: 0;
       }
 
-      .toc-toggle-floating:hover {
+      .right-toc-sidebar-toggle:hover {
         background: #eaeef2;
         color: #24292f;
       }
 
-      .toc-toggle-floating.active {
+      .right-toc-sidebar-toggle.active {
         background: #dbeafe;
         color: #0969da;
         border-color: #0969da;
       }
 
-      .toc-toggle-floating.hidden {
+      .right-toc-sidebar-toggle.hidden {
         opacity: 0;
         pointer-events: none;
       }
 
-      /* TOC sidebar */
-      .toc-sidebar {
+      /* Right TOC sidebar */
+      .right-toc-sidebar {
         position: fixed;
         top: 0;
         right: -300px;
@@ -532,11 +532,11 @@
         flex-direction: column;
       }
 
-      .toc-sidebar.open {
+      .right-toc-sidebar.open {
         right: 0;
       }
 
-      .toc-header {
+      .right-toc-sidebar-header {
         background: #f6f8fa;
         padding: 16px;
         border-bottom: 1px solid #d0d7de;
@@ -546,7 +546,7 @@
         flex-shrink: 0;
       }
 
-      .toc-title {
+      .right-toc-sidebar-title {
         font-weight: 600;
         font-size: 14px;
         color: #24292f;
@@ -555,7 +555,7 @@
         gap: 8px;
       }
 
-      .toc-close {
+      .right-toc-sidebar-close {
         background: none;
         border: none;
         color: #656d76;
@@ -565,7 +565,7 @@
         font-size: 16px;
       }
 
-      .toc-close:hover {
+      .right-toc-sidebar-close:hover {
         background: #eaeef2;
         color: #24292f;
       }
@@ -629,7 +629,7 @@
   </head>
   <body>
     <!-- Floating sidebar toggles -->
-    <button class="sidebar-toggle" id="sidebarToggle">
+    <button class="left-file-sidebar-toggle" id="leftFileSidebarToggle">
       <svg class="file-icon" viewBox="0 0 16 16">
         <path
           d="M1.75 2.5h12.5a.75.75 0 0 1 0 1.5H1.75a.75.75 0 0 1 0-1.5Zm0 5h12.5a.75.75 0 0 1 0 1.5H1.75a.75.75 0 0 1 0-1.5Zm0 5h12.5a.75.75 0 0 1 0 1.5H1.75a.75.75 0 0 1 0-1.5Z"
@@ -637,7 +637,7 @@
       </svg>
     </button>
 
-    <button class="toc-toggle-floating" id="tocToggleFloating" title="Table of Contents">
+    <button class="right-toc-sidebar-toggle" id="rightTocSidebarToggle" title="Table of Contents">
       <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
         <path
           d="M1 2.75A.75.75 0 0 1 1.75 2h12.5a.75.75 0 0 1 0 1.5H1.75A.75.75 0 0 1 1 2.75Zm0 5A.75.75 0 0 1 1.75 7h6.5a.75.75 0 0 1 0 1.5h-6.5A.75.75 0 0 1 1 7.75ZM1.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5Z"
@@ -645,10 +645,10 @@
       </svg>
     </button>
 
-    <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-      <div class="sidebar-header">
-        <div class="sidebar-title">
+    <!-- Left File Sidebar -->
+    <div class="left-file-sidebar" id="leftFileSidebar">
+      <div class="left-file-sidebar-header">
+        <div class="left-file-sidebar-title">
           <svg class="file-icon" viewBox="0 0 16 16">
             <path
               d="M1.75 2.5h12.5a.75.75 0 0 1 0 1.5H1.75a.75.75 0 0 1 0-1.5Zm0 5h12.5a.75.75 0 0 1 0 1.5H1.75a.75.75 0 0 1 0-1.5Zm0 5h12.5a.75.75 0 0 1 0 1.5H1.75a.75.75 0 0 1 0-1.5Z"
@@ -656,7 +656,7 @@
           </svg>
           Recent Files
         </div>
-        <button class="sidebar-close" id="sidebarClose">×</button>
+        <button class="left-file-sidebar-close" id="leftFileSidebarClose">×</button>
       </div>
       <div class="recent-files" id="recentFiles">
         <div class="empty-recent">
@@ -669,10 +669,10 @@
       </button>
     </div>
 
-    <!-- TOC sidebar (right) -->
-    <div class="toc-sidebar" id="tocSidebar">
-      <div class="toc-header">
-        <div class="toc-title">
+    <!-- Right TOC Sidebar -->
+    <div class="right-toc-sidebar" id="rightTocSidebar">
+      <div class="right-toc-sidebar-header">
+        <div class="right-toc-sidebar-title">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="#656d76">
             <path
               d="M1 2.75A.75.75 0 0 1 1.75 2h12.5a.75.75 0 0 1 0 1.5H1.75A.75.75 0 0 1 1 2.75Zm0 5A.75.75 0 0 1 1.75 7h6.5a.75.75 0 0 1 0 1.5h-6.5A.75.75 0 0 1 1 7.75ZM1.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5Z"
@@ -680,7 +680,7 @@
           </svg>
           Table of Contents
         </div>
-        <button class="toc-close" id="tocClose">×</button>
+        <button class="right-toc-sidebar-close" id="rightTocSidebarClose">×</button>
       </div>
       <div class="toc-list" id="tocList">
         <div class="toc-empty">Open a file to see its headings</div>
@@ -737,17 +737,17 @@
       const markdownContent = document.getElementById("markdownContent");
       const previewContent = document.querySelector(".preview-content");
 
-      // Sidebar elements
-      const sidebarToggle = document.getElementById("sidebarToggle");
-      const sidebar = document.getElementById("sidebar");
-      const sidebarClose = document.getElementById("sidebarClose");
+      // Left File Sidebar elements
+      const leftFileSidebarToggle = document.getElementById("leftFileSidebarToggle");
+      const leftFileSidebar = document.getElementById("leftFileSidebar");
+      const leftFileSidebarClose = document.getElementById("leftFileSidebarClose");
       const recentFiles = document.getElementById("recentFiles");
       const clearAllBtn = document.getElementById("clearAllBtn");
 
-      // TOC sidebar elements
-      const tocToggle = document.getElementById("tocToggleFloating");
-      const tocSidebar = document.getElementById("tocSidebar");
-      const tocClose = document.getElementById("tocClose");
+      // Right TOC Sidebar elements
+      const rightTocSidebarToggle = document.getElementById("rightTocSidebarToggle");
+      const rightTocSidebar = document.getElementById("rightTocSidebar");
+      const rightTocSidebarClose = document.getElementById("rightTocSidebarClose");
       const tocList = document.getElementById("tocList");
 
       // Recent files storage
@@ -824,43 +824,43 @@
         renderer: renderer,
       });
 
-      function closeLeftSidebar() {
-        sidebar.classList.remove("open");
-        sidebarToggle.classList.remove("hidden");
+      function closeLeftFileSidebar() {
+        leftFileSidebar.classList.remove("open");
+        leftFileSidebarToggle.classList.remove("hidden");
       }
 
-      function closeTocSidebar() {
-        tocSidebar.classList.remove("open");
-        tocToggle.classList.remove("active");
-        tocToggle.classList.remove("hidden");
+      function closeRightTocSidebar() {
+        rightTocSidebar.classList.remove("open");
+        rightTocSidebarToggle.classList.remove("active");
+        rightTocSidebarToggle.classList.remove("hidden");
       }
 
       function closeSidebars() {
-        closeLeftSidebar();
-        closeTocSidebar();
+        closeLeftFileSidebar();
+        closeRightTocSidebar();
       }
 
-      // Sidebar functionality
-      sidebarToggle.addEventListener("click", () => {
-        sidebar.classList.add("open");
-        sidebarToggle.classList.add("hidden");
+      // Left File Sidebar functionality
+      leftFileSidebarToggle.addEventListener("click", () => {
+        leftFileSidebar.classList.add("open");
+        leftFileSidebarToggle.classList.add("hidden");
       });
 
-      sidebarClose.addEventListener("click", closeLeftSidebar);
+      leftFileSidebarClose.addEventListener("click", closeLeftFileSidebar);
 
-      // TOC sidebar functionality
-      tocToggle.addEventListener("click", () => {
-        const isOpen = tocSidebar.classList.contains("open");
+      // Right TOC Sidebar functionality
+      rightTocSidebarToggle.addEventListener("click", () => {
+        const isOpen = rightTocSidebar.classList.contains("open");
         if (isOpen) {
-          closeTocSidebar();
+          closeRightTocSidebar();
         } else {
-          tocSidebar.classList.add("open");
-          tocToggle.classList.add("active");
-          tocToggle.classList.add("hidden");
+          rightTocSidebar.classList.add("open");
+          rightTocSidebarToggle.classList.add("active");
+          rightTocSidebarToggle.classList.add("hidden");
         }
       });
 
-      tocClose.addEventListener("click", closeTocSidebar);
+      rightTocSidebarClose.addEventListener("click", closeRightTocSidebar);
 
       // Close sidebars only when the rendered markdown content is activated.
       markdownContent.addEventListener("click", closeSidebars);
@@ -1097,8 +1097,9 @@
 
           // Build table of contents
           buildToc();
-          tocToggle.style.display = "flex";
-          tocToggle.classList.remove("hidden");
+          rightTocSidebarToggle.style.display = "flex";
+          rightTocSidebarToggle.classList.remove("hidden");
+
 
           // Add to recent files
           addToRecentFiles(filename, content);
