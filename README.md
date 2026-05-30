@@ -72,6 +72,11 @@ No build process required! Simply:
 - Sharing rendered markdown with others
 - Offline markdown viewing
 
+## Limitations
+- Local image files and links to local files are not supported (Relative-path images in markdown cannot be loaded due to browser security restrictions)
+- Recent file history is lost when the page is closed (Stored in memory only; localStorage is not available in this environment)
+- An internet connection is required for external resources (Libraries such as Mermaid, Prism, and marked are loaded from CDN)
+
 ## License
 
 Feel free to use, modify, and distribute as needed.
