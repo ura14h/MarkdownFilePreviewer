@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Markdown Previewer</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.6.1/mermaid.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
@@ -240,6 +241,33 @@
             width: 16px;
             height: 16px;
             fill: #656d76;
+        }
+
+        /* Mermaid diagram container */
+        .mermaid-container {
+            background: #f6f8fa;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 16px;
+            text-align: center;
+            overflow-x: auto;
+        }
+
+        .mermaid-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .mermaid-error {
+            background: #fff8f0;
+            border: 1px solid #d1242f;
+            color: #d1242f;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, monospace;
         }
 
         .error {
@@ -522,22 +550,47 @@
             updateRecentFilesDisplay();
         }
 
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'default',
+            securityLevel: 'loose',
+        });
+
+        // Custom renderer for marked
+        const renderer = new marked.Renderer();
+
+        // Override code block rendering to handle mermaid
+        renderer.code = function(code, lang) {
+            if (lang === 'mermaid') {
+                // Wrap in a container with a unique id; mermaid.run() will render it
+                const id = 'mermaid-' + Math.random().toString(36).slice(2, 9);
+                return `<div class="mermaid-container"><div class="mermaid" id="${id}">${escapeHtml(code)}</div></div>`;
+            }
+            // Syntax highlighting for other languages
+            if (lang && Prism.languages[lang]) {
+                const highlighted = Prism.highlight(code, Prism.languages[lang], lang);
+                return `<pre class="language-${lang}"><code class="language-${lang}">${highlighted}</code></pre>`;
+            }
+            return `<pre><code>${escapeHtml(code)}</code></pre>`;
+        };
+
+        function escapeHtml(str) {
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
         // Configure marked with GitHub-flavored markdown
         marked.setOptions({
             gfm: true,
             breaks: true,
             headerIds: true,
-            mangle: false
-        });
-
-        // Add syntax highlighting
-        marked.setOptions({
-            highlight: function(code, lang) {
-                if (Prism.languages[lang]) {
-                    return Prism.highlight(code, Prism.languages[lang], lang);
-                }
-                return code;
-            }
+            mangle: false,
+            renderer: renderer,
         });
 
         // Sidebar functionality
@@ -687,6 +740,17 @@
                 
                 // Re-run Prism highlighting on the new content
                 Prism.highlightAllUnder(markdownContent);
+
+                // Render mermaid diagrams
+                const mermaidNodes = markdownContent.querySelectorAll('.mermaid');
+                if (mermaidNodes.length > 0) {
+                    mermaid.run({ nodes: mermaidNodes }).catch(err => {
+                        mermaidNodes.forEach(node => {
+                            node.closest('.mermaid-container').innerHTML =
+                                `<div class="mermaid-error">Mermaid parse error: ${err.message}</div>`;
+                        });
+                    });
+                }
                 
                 // Add to recent files
                 addToRecentFiles(filename, content);
