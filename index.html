@@ -459,6 +459,140 @@
         .clear-all-btn:hover {
             background: #eaeef2;
         }
+
+        /* TOC toggle button (inside preview-header) */
+        .toc-toggle {
+            margin-left: auto;
+            background: none;
+            color: #656d76;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .toc-toggle:hover {
+            background: #eaeef2;
+            color: #24292f;
+        }
+
+        .toc-toggle.active {
+            background: #dbeafe;
+            color: #0969da;
+            border-color: #0969da;
+        }
+
+        /* TOC sidebar */
+        .toc-sidebar {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100vh;
+            background: white;
+            border-left: 1px solid #d0d7de;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+            transition: right 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .toc-sidebar.open {
+            right: 0;
+        }
+
+        .toc-header {
+            background: #f6f8fa;
+            padding: 16px;
+            border-bottom: 1px solid #d0d7de;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .toc-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: #24292f;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toc-close {
+            background: none;
+            border: none;
+            color: #656d76;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 3px;
+            font-size: 16px;
+        }
+
+        .toc-close:hover {
+            background: #eaeef2;
+            color: #24292f;
+        }
+
+        .toc-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 0;
+        }
+
+        .toc-item {
+            cursor: pointer;
+            transition: background-color 0.15s;
+            border-left: 3px solid transparent;
+        }
+
+        .toc-item:hover {
+            background: #f6f8fa;
+        }
+
+        .toc-item.active {
+            background: #dbeafe;
+            border-left-color: #0969da;
+        }
+
+        .toc-link {
+            display: block;
+            padding: 5px 16px 5px 0;
+            font-size: 13px;
+            color: #24292f;
+            text-decoration: none;
+            line-height: 1.4;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .toc-item:hover .toc-link {
+            color: #0969da;
+        }
+
+        .toc-item.active .toc-link {
+            color: #0969da;
+            font-weight: 500;
+        }
+
+        .toc-h1 .toc-link { font-weight: 600; }
+        .toc-h2 .toc-link { font-weight: 500; }
+
+        .toc-empty {
+            padding: 32px 16px;
+            text-align: center;
+            color: #656d76;
+            font-size: 13px;
+        }
     </style>
 </head>
 <body>
@@ -489,6 +623,22 @@
         <button class="clear-all-btn" id="clearAllBtn" style="display: none;">Clear All</button>
     </div>
 
+    <!-- TOC sidebar (right) -->
+    <div class="toc-sidebar" id="tocSidebar">
+        <div class="toc-header">
+            <div class="toc-title">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="#656d76">
+                    <path d="M1 2.75A.75.75 0 0 1 1.75 2h12.5a.75.75 0 0 1 0 1.5H1.75A.75.75 0 0 1 1 2.75Zm0 5A.75.75 0 0 1 1.75 7h6.5a.75.75 0 0 1 0 1.5h-6.5A.75.75 0 0 1 1 7.75ZM1.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5Z"/>
+                </svg>
+                Table of Contents
+            </div>
+            <button class="toc-close" id="tocClose">×</button>
+        </div>
+        <div class="toc-list" id="tocList">
+            <div class="toc-empty">Open a file to see its headings</div>
+        </div>
+    </div>
+
     <div class="container">
         <div class="header">
             <div class="file-input-container">
@@ -511,6 +661,11 @@
                     <path d="M2 1.75C2 .784 2.784 0 3.75 0h6.586c.464 0 .909.184 1.237.513l2.914 2.914c.329.328.513.773.513 1.237v9.586A1.75 1.75 0 0 1 13.25 16h-9.5A1.75 1.75 0 0 1 2 14.25Zm1.75-.25a.25.25 0 0 0-.25.25v12.5c0 .138.112.25.25.25h9.5a.25.25 0 0 0 .25-.25V6h-2.75A1.75 1.75 0 0 1 9 4.25V1.5Zm6.75.062V4.25c0 .138.112.25.25.25h2.688l-.011-.013-2.914-2.914-.013-.011Z"/>
                 </svg>
                 <span id="fileName">&nbsp;</span>
+                <button class="toc-toggle" id="tocToggle" title="Table of Contents" style="display:none;">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M1 2.75A.75.75 0 0 1 1.75 2h12.5a.75.75 0 0 1 0 1.5H1.75A.75.75 0 0 1 1 2.75Zm0 5A.75.75 0 0 1 1.75 7h6.5a.75.75 0 0 1 0 1.5h-6.5A.75.75 0 0 1 1 7.75ZM1.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5Z"/>
+                    </svg>
+                </button>
             </div>
             <div class="preview-content">
                 <div class="empty-state" id="emptyState">
@@ -538,6 +693,12 @@
         const recentFiles = document.getElementById('recentFiles');
         const clearAllBtn = document.getElementById('clearAllBtn');
 
+        // TOC sidebar elements
+        const tocToggle = document.getElementById('tocToggle');
+        const tocSidebar = document.getElementById('tocSidebar');
+        const tocClose = document.getElementById('tocClose');
+        const tocList = document.getElementById('tocList');
+
         // Recent files storage
         let recentFilesList = [];
         let currentFileContent = '';
@@ -559,6 +720,20 @@
 
         // Custom renderer for marked
         const renderer = new marked.Renderer();
+
+        // Heading renderer: attach slug IDs for TOC anchors
+        const headingCounters = {};
+        renderer.heading = function(text, level) {
+            const slug = text
+                .toLowerCase()
+                .replace(/<[^>]+>/g, '')          // strip inline HTML
+                .replace(/[^\w\s\u3040-\u9fff-]/g, '') // keep word chars + Japanese
+                .trim()
+                .replace(/\s+/g, '-');
+            headingCounters[slug] = (headingCounters[slug] || 0) + 1;
+            const id = headingCounters[slug] > 1 ? `${slug}-${headingCounters[slug]}` : slug;
+            return `<h${level} id="${id}">${text}</h${level}>\n`;
+        };
 
         // Override code block rendering to handle mermaid
         renderer.code = function(code, lang) {
@@ -606,11 +781,100 @@
 
         // Close sidebar when clicking outside
         document.addEventListener('click', (e) => {
-            if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+            if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)
+                && !tocSidebar.contains(e.target) && !tocToggle.contains(e.target)) {
                 sidebar.classList.remove('open');
                 sidebarToggle.classList.remove('hidden');
             }
         });
+
+        // TOC sidebar functionality
+        tocToggle.addEventListener('click', () => {
+            const isOpen = tocSidebar.classList.contains('open');
+            if (isOpen) {
+                tocSidebar.classList.remove('open');
+                tocToggle.classList.remove('active');
+            } else {
+                tocSidebar.classList.add('open');
+                tocToggle.classList.add('active');
+            }
+        });
+
+        tocClose.addEventListener('click', () => {
+            tocSidebar.classList.remove('open');
+            tocToggle.classList.remove('active');
+        });
+
+        // Close TOC sidebar when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!tocSidebar.contains(e.target) && !tocToggle.contains(e.target)) {
+                tocSidebar.classList.remove('open');
+                tocToggle.classList.remove('active');
+            }
+        });
+
+        // Build table of contents from rendered headings
+        let tocObserver = null;
+
+        function buildToc() {
+            const headings = Array.from(markdownContent.querySelectorAll('h1, h2, h3, h4, h5, h6'));
+
+            if (headings.length === 0) {
+                tocList.innerHTML = '<div class="toc-empty">No headings found in this file</div>';
+                return;
+            }
+
+            const minLevel = Math.min(...headings.map(h => parseInt(h.tagName[1])));
+
+            tocList.innerHTML = headings.map(h => {
+                const level = parseInt(h.tagName[1]);
+                const indent = 16 + (level - minLevel) * 14;
+                const label = h.textContent.trim();
+                return `<div class="toc-item toc-h${level}" data-id="${h.id}" style="padding-left:${indent}px" title="${label}">
+                    <a class="toc-link" href="#${h.id}">${label}</a>
+                </div>`;
+            }).join('');
+
+            // Click: smooth scroll + close sidebar
+            tocList.querySelectorAll('.toc-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const target = document.getElementById(item.dataset.id);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                    tocSidebar.classList.remove('open');
+                    tocToggle.classList.remove('hidden');
+                });
+            });
+
+            // Scroll spy via IntersectionObserver
+            if (tocObserver) tocObserver.disconnect();
+
+            tocObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const item = tocList.querySelector(`.toc-item[data-id="${entry.target.id}"]`);
+                    if (!item) return;
+                    if (entry.isIntersecting) {
+                        // Deactivate all, activate this one
+                        tocList.querySelectorAll('.toc-item.active').forEach(el => el.classList.remove('active'));
+                        item.classList.add('active');
+                        // Keep active item visible in sidebar
+                        item.scrollIntoView({ block: 'nearest' });
+                    }
+                });
+            }, {
+                rootMargin: '0px 0px -70% 0px',
+                threshold: 0,
+            });
+
+            headings.forEach(h => tocObserver.observe(h));
+        }
+
+        function clearToc() {
+            if (tocObserver) { tocObserver.disconnect(); tocObserver = null; }
+            tocList.innerHTML = '<div class="toc-empty">Open a file to see its headings</div>';
+        }
 
         function addToRecentFiles(filename, content) {
             const now = new Date();
@@ -729,6 +993,10 @@
         function renderMarkdown(content, filename) {
             try {
                 clearError();
+
+                // Reset duplicate-heading counters before each render
+                Object.keys(headingCounters).forEach(k => delete headingCounters[k]);
+
                 const html = marked.parse(content);
                 
                 currentFileName = filename;
@@ -751,6 +1019,10 @@
                         });
                     });
                 }
+
+                // Build table of contents
+                buildToc();
+                tocToggle.style.display = 'flex';
                 
                 // Add to recent files
                 addToRecentFiles(filename, content);
