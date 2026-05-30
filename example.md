@@ -180,6 +180,15 @@ JSON example:
 }
 ```
 
+Mermaid example:
+
+```mermaid
+sequenceDiagram
+    Jane ->> John: Hello John, how are you?
+    John -->> Jane: Great!
+    Jane -) John: See you later!
+```
+
 ## Tables
 
 | Name | Age | City | Occupation |
