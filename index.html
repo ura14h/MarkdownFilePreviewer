@@ -768,50 +768,44 @@
             renderer: renderer,
         });
 
+        function closeLeftSidebar() {
+            sidebar.classList.remove('open');
+            sidebarToggle.classList.remove('hidden');
+        }
+
+        function closeTocSidebar() {
+            tocSidebar.classList.remove('open');
+            tocToggle.classList.remove('active');
+        }
+
+        function closeSidebars() {
+            closeLeftSidebar();
+            closeTocSidebar();
+        }
+
         // Sidebar functionality
         sidebarToggle.addEventListener('click', () => {
             sidebar.classList.add('open');
             sidebarToggle.classList.add('hidden');
         });
 
-        sidebarClose.addEventListener('click', () => {
-            sidebar.classList.remove('open');
-            sidebarToggle.classList.remove('hidden');
-        });
-
-        // Close sidebar when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)
-                && !tocSidebar.contains(e.target) && !tocToggle.contains(e.target)) {
-                sidebar.classList.remove('open');
-                sidebarToggle.classList.remove('hidden');
-            }
-        });
+        sidebarClose.addEventListener('click', closeLeftSidebar);
 
         // TOC sidebar functionality
         tocToggle.addEventListener('click', () => {
             const isOpen = tocSidebar.classList.contains('open');
             if (isOpen) {
-                tocSidebar.classList.remove('open');
-                tocToggle.classList.remove('active');
+                closeTocSidebar();
             } else {
                 tocSidebar.classList.add('open');
                 tocToggle.classList.add('active');
             }
         });
 
-        tocClose.addEventListener('click', () => {
-            tocSidebar.classList.remove('open');
-            tocToggle.classList.remove('active');
-        });
+        tocClose.addEventListener('click', closeTocSidebar);
 
-        // Close TOC sidebar when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!tocSidebar.contains(e.target) && !tocToggle.contains(e.target)) {
-                tocSidebar.classList.remove('open');
-                tocToggle.classList.remove('active');
-            }
-        });
+        // Close sidebars only when the rendered markdown content is activated.
+        markdownContent.addEventListener('click', closeSidebars);
 
         // Build table of contents from rendered headings
         let tocObserver = null;
@@ -835,7 +829,7 @@
                 </div>`;
             }).join('');
 
-            // Click: smooth scroll + close sidebar
+            // Click: smooth scroll without closing the TOC sidebar.
             tocList.querySelectorAll('.toc-item').forEach(item => {
                 item.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -843,8 +837,6 @@
                     if (target) {
                         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }
-                    tocSidebar.classList.remove('open');
-                    tocToggle.classList.remove('hidden');
                 });
             });
 
@@ -950,7 +942,6 @@
                     const index = parseInt(item.dataset.index);
                     const file = recentFilesList[index];
                     renderMarkdown(file.content, file.name);
-                    sidebar.classList.remove('open');
                 });
             });
 
