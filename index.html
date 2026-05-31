@@ -34,6 +34,8 @@
         padding: 20px;
       }
 
+      /* File input and drag-and-drop area styles */
+
       .header {
         background: #f6f8fa;
         border: 1px solid #d0d7de;
@@ -100,6 +102,8 @@
         background: #f6f8fa;
       }
 
+      /* Preview area styles */
+
       .preview-container {
         background: white;
         border: 1px solid #d0d7de;
@@ -118,6 +122,12 @@
         gap: 8px;
       }
 
+      .file-icon {
+        width: 16px;
+        height: 16px;
+        fill: #656d76;
+      }
+
       .preview-content {
         padding: 32px;
       }
@@ -133,7 +143,11 @@
         color: #24292f;
       }
 
-      /* GitHub-style markdown rendering */
+
+      /* Preview content styles */
+
+      /* Preview content style: GitHub-style markdown rendering */
+
       .markdown-body h1,
       .markdown-body h2,
       .markdown-body h3,
@@ -161,12 +175,15 @@
       .markdown-body h3 {
         font-size: 1.25em;
       }
+
       .markdown-body h4 {
         font-size: 1em;
       }
+
       .markdown-body h5 {
         font-size: 0.875em;
       }
+
       .markdown-body h6 {
         font-size: 0.85em;
         color: #656d76;
@@ -258,13 +275,8 @@
         margin: 16px 0;
       }
 
-      .file-icon {
-        width: 16px;
-        height: 16px;
-        fill: #656d76;
-      }
+      /* Preview content style: mermaid diagram container */
 
-      /* Mermaid diagram container */
       .mermaid-container {
         padding: 16px;
         margin-bottom: 16px;
@@ -289,6 +301,8 @@
           ui-monospace, SFMono-Regular, "SF Mono", Consolas, monospace;
       }
 
+      /* Preview content style: error */
+
       .error {
         background: #fff8f0;
         border: 1px solid #d1242f;
@@ -299,6 +313,7 @@
       }
 
       /* Left file sidebar styles */
+
       .left-file-sidebar-toggle {
         position: fixed;
         top: 20px;
@@ -480,6 +495,7 @@
       }
 
       /* Right TOC sidebar styles */
+
       .right-toc-sidebar-toggle {
         position: fixed;
         top: 20px;
@@ -516,7 +532,6 @@
         pointer-events: none;
       }
 
-      /* Right TOC sidebar */
       .right-toc-sidebar {
         position: fixed;
         top: 0;
@@ -688,6 +703,8 @@
     </div>
 
     <div class="container">
+
+      <!-- File input and drag-and-drop area -->
       <div class="header">
         <div class="file-input-container">
           <input
@@ -705,6 +722,7 @@
         </div>
       </div>
 
+      <!-- Preview container -->
       <div class="preview-container">
         <div class="preview-header">
           <svg class="file-icon" viewBox="0 0 16 16">
