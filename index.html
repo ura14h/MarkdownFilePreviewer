@@ -325,7 +325,7 @@
         height: 40px;
         border-radius: 0 6px 6px 0;
         cursor: pointer;
-        display: flex;
+        display: none;
         align-items: center;
         justify-content: center;
         z-index: 1001;
@@ -971,6 +971,8 @@
           rightTocSidebarToggle.classList.remove("hidden");
 
           addToRecentFiles(filename, content);
+          leftFileSidebarToggle.style.display = "flex";
+          leftFileSidebarToggle.classList.remove("hidden");
 
         } catch (error) {
           showError("Error rendering markdown: " + error.message);
