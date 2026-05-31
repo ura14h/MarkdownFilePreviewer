@@ -34,6 +34,8 @@
         padding: 20px;
       }
 
+      /* File input and drag-and-drop area styles */
+
       .header {
         background: #f6f8fa;
         border: 1px solid #d0d7de;
@@ -100,6 +102,8 @@
         background: #f6f8fa;
       }
 
+      /* Preview area styles */
+
       .preview-container {
         background: white;
         border: 1px solid #d0d7de;
@@ -110,12 +114,19 @@
       .preview-header {
         background: #f6f8fa;
         border-bottom: 1px solid #d0d7de;
+        border-radius: 6px 6px 0 0;
         padding: 8px 16px;
         font-size: 14px;
         font-weight: 600;
         display: flex;
         align-items: center;
         gap: 8px;
+      }
+
+      .file-icon {
+        width: 16px;
+        height: 16px;
+        fill: #656d76;
       }
 
       .preview-content {
@@ -133,7 +144,11 @@
         color: #24292f;
       }
 
-      /* GitHub-style markdown rendering */
+
+      /* Preview content styles */
+
+      /* Preview content style: GitHub-style markdown rendering */
+
       .markdown-body h1,
       .markdown-body h2,
       .markdown-body h3,
@@ -161,12 +176,15 @@
       .markdown-body h3 {
         font-size: 1.25em;
       }
+
       .markdown-body h4 {
         font-size: 1em;
       }
+
       .markdown-body h5 {
         font-size: 0.875em;
       }
+
       .markdown-body h6 {
         font-size: 0.85em;
         color: #656d76;
@@ -258,17 +276,9 @@
         margin: 16px 0;
       }
 
-      .file-icon {
-        width: 16px;
-        height: 16px;
-        fill: #656d76;
-      }
+      /* Preview content style: mermaid diagram container */
 
-      /* Mermaid diagram container */
       .mermaid-container {
-        background: #f6f8fa;
-        border: 1px solid #d0d7de;
-        border-radius: 6px;
         padding: 16px;
         margin-bottom: 16px;
         text-align: center;
@@ -292,6 +302,8 @@
           ui-monospace, SFMono-Regular, "SF Mono", Consolas, monospace;
       }
 
+      /* Preview content style: error */
+
       .error {
         background: #fff8f0;
         border: 1px solid #d1242f;
@@ -301,8 +313,9 @@
         margin-bottom: 16px;
       }
 
-      /* Floating sidebar styles */
-      .sidebar-toggle {
+      /* Left file sidebar styles */
+
+      .left-file-sidebar-toggle {
         position: fixed;
         top: 20px;
         left: 0;
@@ -313,7 +326,7 @@
         height: 40px;
         border-radius: 0 6px 6px 0;
         cursor: pointer;
-        display: flex;
+        display: none;
         align-items: center;
         justify-content: center;
         z-index: 1001;
@@ -323,17 +336,17 @@
         pointer-events: auto;
       }
 
-      .sidebar-toggle.hidden {
+      .left-file-sidebar-toggle.hidden {
         opacity: 0;
         pointer-events: none;
       }
 
-      .sidebar-toggle:hover {
+      .left-file-sidebar-toggle:hover {
         background: #eaeef2;
         color: #24292f;
       }
 
-      .sidebar {
+      .left-file-sidebar {
         position: fixed;
         top: 0;
         left: -300px;
@@ -348,11 +361,11 @@
         flex-direction: column;
       }
 
-      .sidebar.open {
+      .left-file-sidebar.open {
         left: 0;
       }
 
-      .sidebar-header {
+      .left-file-sidebar-header {
         background: #f6f8fa;
         padding: 16px;
         border-bottom: 1px solid #d0d7de;
@@ -361,7 +374,7 @@
         justify-content: space-between;
       }
 
-      .sidebar-title {
+      .left-file-sidebar-title {
         font-weight: 600;
         font-size: 14px;
         color: #24292f;
@@ -370,17 +383,17 @@
         gap: 8px;
       }
 
-      .sidebar-close {
+      .left-file-sidebar-close {
         background: none;
         border: none;
         color: #656d76;
         cursor: pointer;
-        padding: 4px;
+        padding: 4px 8px;
         border-radius: 3px;
         font-size: 16px;
       }
 
-      .sidebar-close:hover {
+      .left-file-sidebar-close:hover {
         background: #eaeef2;
         color: #24292f;
       }
@@ -435,7 +448,7 @@
         border: none;
         color: #656d76;
         cursor: pointer;
-        padding: 2px;
+        padding: 2px 6px;
         border-radius: 3px;
         font-size: 12px;
         opacity: 0;
@@ -482,38 +495,45 @@
         background: #eaeef2;
       }
 
-      /* TOC toggle button (inside preview-header) */
-      .toc-toggle {
-        margin-left: auto;
-        background: none;
+      /* Right TOC sidebar styles */
+
+      .right-toc-sidebar-toggle {
+        position: fixed;
+        top: 20px;
+        right: 0;
+        background: #f6f8fa;
         color: #656d76;
         border: 1px solid #d0d7de;
-        border-radius: 6px;
-        width: 28px;
-        height: 28px;
+        width: 40px;
+        height: 40px;
+        border-radius: 6px 0 0 6px;
         cursor: pointer;
-        display: flex;
+        display: none;
         align-items: center;
         justify-content: center;
+        z-index: 1001;
+        transition: all 0.3s ease;
+        padding: 0;
         flex-shrink: 0;
-        transition:
-          background 0.15s,
-          color 0.15s;
       }
 
-      .toc-toggle:hover {
+      .right-toc-sidebar-toggle:hover {
         background: #eaeef2;
         color: #24292f;
       }
 
-      .toc-toggle.active {
+      .right-toc-sidebar-toggle.active {
         background: #dbeafe;
         color: #0969da;
         border-color: #0969da;
       }
 
-      /* TOC sidebar */
-      .toc-sidebar {
+      .right-toc-sidebar-toggle.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .right-toc-sidebar {
         position: fixed;
         top: 0;
         right: -300px;
@@ -528,11 +548,11 @@
         flex-direction: column;
       }
 
-      .toc-sidebar.open {
+      .right-toc-sidebar.open {
         right: 0;
       }
 
-      .toc-header {
+      .right-toc-sidebar-header {
         background: #f6f8fa;
         padding: 16px;
         border-bottom: 1px solid #d0d7de;
@@ -542,7 +562,7 @@
         flex-shrink: 0;
       }
 
-      .toc-title {
+      .right-toc-sidebar-title {
         font-weight: 600;
         font-size: 14px;
         color: #24292f;
@@ -551,17 +571,17 @@
         gap: 8px;
       }
 
-      .toc-close {
+      .right-toc-sidebar-close {
         background: none;
         border: none;
         color: #656d76;
         cursor: pointer;
-        padding: 4px;
+        padding: 4px 8px;
         border-radius: 3px;
         font-size: 16px;
       }
 
-      .toc-close:hover {
+      .right-toc-sidebar-close:hover {
         background: #eaeef2;
         color: #24292f;
       }
@@ -624,8 +644,8 @@
     </style>
   </head>
   <body>
-    <!-- Floating sidebar toggle -->
-    <button class="sidebar-toggle" id="sidebarToggle">
+    <!-- Floating sidebar toggles -->
+    <button class="left-file-sidebar-toggle" id="leftFileSidebarToggle">
       <svg class="file-icon" viewBox="0 0 16 16">
         <path
           d="M1.75 2.5h12.5a.75.75 0 0 1 0 1.5H1.75a.75.75 0 0 1 0-1.5Zm0 5h12.5a.75.75 0 0 1 0 1.5H1.75a.75.75 0 0 1 0-1.5Zm0 5h12.5a.75.75 0 0 1 0 1.5H1.75a.75.75 0 0 1 0-1.5Z"
@@ -633,10 +653,18 @@
       </svg>
     </button>
 
-    <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-      <div class="sidebar-header">
-        <div class="sidebar-title">
+    <button class="right-toc-sidebar-toggle" id="rightTocSidebarToggle" title="Table of Contents">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+        <path
+          d="M1 2.75A.75.75 0 0 1 1.75 2h12.5a.75.75 0 0 1 0 1.5H1.75A.75.75 0 0 1 1 2.75Zm0 5A.75.75 0 0 1 1.75 7h6.5a.75.75 0 0 1 0 1.5h-6.5A.75.75 0 0 1 1 7.75ZM1.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5Z"
+        />
+      </svg>
+    </button>
+
+    <!-- Left File Sidebar -->
+    <div class="left-file-sidebar" id="leftFileSidebar">
+      <div class="left-file-sidebar-header">
+        <div class="left-file-sidebar-title">
           <svg class="file-icon" viewBox="0 0 16 16">
             <path
               d="M1.75 2.5h12.5a.75.75 0 0 1 0 1.5H1.75a.75.75 0 0 1 0-1.5Zm0 5h12.5a.75.75 0 0 1 0 1.5H1.75a.75.75 0 0 1 0-1.5Zm0 5h12.5a.75.75 0 0 1 0 1.5H1.75a.75.75 0 0 1 0-1.5Z"
@@ -644,7 +672,7 @@
           </svg>
           Recent Files
         </div>
-        <button class="sidebar-close" id="sidebarClose">×</button>
+        <button class="left-file-sidebar-close" id="leftFileSidebarClose">×</button>
       </div>
       <div class="recent-files" id="recentFiles">
         <div class="empty-recent">
@@ -657,10 +685,10 @@
       </button>
     </div>
 
-    <!-- TOC sidebar (right) -->
-    <div class="toc-sidebar" id="tocSidebar">
-      <div class="toc-header">
-        <div class="toc-title">
+    <!-- Right TOC Sidebar -->
+    <div class="right-toc-sidebar" id="rightTocSidebar">
+      <div class="right-toc-sidebar-header">
+        <div class="right-toc-sidebar-title">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="#656d76">
             <path
               d="M1 2.75A.75.75 0 0 1 1.75 2h12.5a.75.75 0 0 1 0 1.5H1.75A.75.75 0 0 1 1 2.75Zm0 5A.75.75 0 0 1 1.75 7h6.5a.75.75 0 0 1 0 1.5h-6.5A.75.75 0 0 1 1 7.75ZM1.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5Z"
@@ -668,7 +696,7 @@
           </svg>
           Table of Contents
         </div>
-        <button class="toc-close" id="tocClose">×</button>
+        <button class="right-toc-sidebar-close" id="rightTocSidebarClose">×</button>
       </div>
       <div class="toc-list" id="tocList">
         <div class="toc-empty">Open a file to see its headings</div>
@@ -676,6 +704,8 @@
     </div>
 
     <div class="container">
+
+      <!-- File input and drag-and-drop area -->
       <div class="header">
         <div class="file-input-container">
           <input
@@ -693,6 +723,7 @@
         </div>
       </div>
 
+      <!-- Preview container -->
       <div class="preview-container">
         <div class="preview-header">
           <svg class="file-icon" viewBox="0 0 16 16">
@@ -701,18 +732,6 @@
             />
           </svg>
           <span id="fileName">&nbsp;</span>
-          <button
-            class="toc-toggle"
-            id="tocToggle"
-            title="Table of Contents"
-            style="display: none"
-          >
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-              <path
-                d="M1 2.75A.75.75 0 0 1 1.75 2h12.5a.75.75 0 0 1 0 1.5H1.75A.75.75 0 0 1 1 2.75Zm0 5A.75.75 0 0 1 1.75 7h6.5a.75.75 0 0 1 0 1.5h-6.5A.75.75 0 0 1 1 7.75ZM1.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5Z"
-              />
-            </svg>
-          </button>
         </div>
         <div class="preview-content">
           <div class="empty-state" id="emptyState">
@@ -729,82 +748,45 @@
     </div>
 
     <script>
+      // Global state and element references:
+
+      // File input and drag-and-drop elements
       const fileInput = document.getElementById("fileInput");
       const loadBtn = document.getElementById("loadBtn");
       const dropZone = document.getElementById("dropZone");
+
+      // Preview area elements
       const fileName = document.getElementById("fileName");
       const emptyState = document.getElementById("emptyState");
-      const markdownContent = document.getElementById("markdownContent");
       const previewContent = document.querySelector(".preview-content");
+      const markdownContent = document.getElementById("markdownContent");
 
-      // Sidebar elements
-      const sidebarToggle = document.getElementById("sidebarToggle");
-      const sidebar = document.getElementById("sidebar");
-      const sidebarClose = document.getElementById("sidebarClose");
+      // Left File Sidebar elements
+      const leftFileSidebarToggle = document.getElementById("leftFileSidebarToggle");
+      const leftFileSidebar = document.getElementById("leftFileSidebar");
+      const leftFileSidebarClose = document.getElementById("leftFileSidebarClose");
       const recentFiles = document.getElementById("recentFiles");
       const clearAllBtn = document.getElementById("clearAllBtn");
 
-      // TOC sidebar elements
-      const tocToggle = document.getElementById("tocToggle");
-      const tocSidebar = document.getElementById("tocSidebar");
-      const tocClose = document.getElementById("tocClose");
+      // Right TOC Sidebar elements
+      const rightTocSidebarToggle = document.getElementById("rightTocSidebarToggle");
+      const rightTocSidebar = document.getElementById("rightTocSidebar");
+      const rightTocSidebarClose = document.getElementById("rightTocSidebarClose");
       const tocList = document.getElementById("tocList");
+
+      // Marked renderer and shared rendering state
+      const renderer = new marked.Renderer();
+      const headingCounters = {};
 
       // Recent files storage
       let recentFilesList = [];
       let currentFileContent = "";
       let currentFileName = "";
 
-      // Load recent files from memory on page load
-      function loadRecentFiles() {
-        // In a real application, you'd load from localStorage
-        // But since we can't use localStorage in Claude artifacts, we keep it in memory
-        updateRecentFilesDisplay();
-      }
+      // TOC observer state
+      let tocObserver = null;
 
-      // Initialize Mermaid
-      mermaid.initialize({
-        startOnLoad: false,
-        theme: "default",
-        securityLevel: "loose",
-      });
-
-      // Custom renderer for marked
-      const renderer = new marked.Renderer();
-
-      // Heading renderer: attach slug IDs for TOC anchors
-      const headingCounters = {};
-      renderer.heading = function (text, level) {
-        const slug = text
-          .toLowerCase()
-          .replace(/<[^>]+>/g, "") // strip inline HTML
-          .replace(/[^\w\s\u3040-\u9fff-]/g, "") // keep word chars + Japanese
-          .trim()
-          .replace(/\s+/g, "-");
-        headingCounters[slug] = (headingCounters[slug] || 0) + 1;
-        const id =
-          headingCounters[slug] > 1 ? `${slug}-${headingCounters[slug]}` : slug;
-        return `<h${level} id="${id}">${text}</h${level}>\n`;
-      };
-
-      // Override code block rendering to handle mermaid
-      renderer.code = function (code, lang) {
-        if (lang === "mermaid") {
-          // Wrap in a container with a unique id; mermaid.run() will render it
-          const id = "mermaid-" + Math.random().toString(36).slice(2, 9);
-          return `<div class="mermaid-container"><div class="mermaid" id="${id}">${escapeHtml(code)}</div></div>`;
-        }
-        // Syntax highlighting for other languages
-        if (lang && Prism.languages[lang]) {
-          const highlighted = Prism.highlight(
-            code,
-            Prism.languages[lang],
-            lang,
-          );
-          return `<pre class="language-${lang}"><code class="language-${lang}">${highlighted}</code></pre>`;
-        }
-        return `<pre><code>${escapeHtml(code)}</code></pre>`;
-      };
+      // Utility functions:
 
       function escapeHtml(str) {
         return str
@@ -815,131 +797,246 @@
           .replace(/'/g, "&#039;");
       }
 
-      // Configure marked with GitHub-flavored markdown
-      marked.setOptions({
-        gfm: true,
-        breaks: true,
-        headerIds: true,
-        mangle: false,
-        renderer: renderer,
-      });
+      // Error handling functions:
 
-      function closeLeftSidebar() {
-        sidebar.classList.remove("open");
-        sidebarToggle.classList.remove("hidden");
+      function showError(message) {
+        const existingError = previewContent.querySelector(".error");
+        if (existingError) {
+          existingError.remove();
+        }
+
+        const errorDiv = document.createElement("div");
+        errorDiv.className = "error";
+        errorDiv.textContent = message;
+        previewContent.insertBefore(errorDiv, previewContent.firstChild);
       }
 
-      function closeTocSidebar() {
-        tocSidebar.classList.remove("open");
-        tocToggle.classList.remove("active");
+      function clearError() {
+        const existingError = previewContent.querySelector(".error");
+        if (existingError) {
+          existingError.remove();
+        }
       }
+
+      // Common UI functions:
 
       function closeSidebars() {
-        closeLeftSidebar();
-        closeTocSidebar();
+        closeLeftFileSidebar();
+        closeRightTocSidebar();
       }
 
-      // Sidebar functionality
-      sidebarToggle.addEventListener("click", () => {
-        sidebar.classList.add("open");
-        sidebarToggle.classList.add("hidden");
-      });
+      // File input processing:
 
-      sidebarClose.addEventListener("click", closeLeftSidebar);
+      function loadFile(file) {
+        if (!file) return;
 
-      // TOC sidebar functionality
-      tocToggle.addEventListener("click", () => {
-        const isOpen = tocSidebar.classList.contains("open");
-        if (isOpen) {
-          closeTocSidebar();
-        } else {
-          tocSidebar.classList.add("open");
-          tocToggle.classList.add("active");
-        }
-      });
+        const validTypes = [".md", ".markdown", ".txt"];
+        const fileExtension = "." + file.name.split(".").pop().toLowerCase();
 
-      tocClose.addEventListener("click", closeTocSidebar);
-
-      // Close sidebars only when the rendered markdown content is activated.
-      markdownContent.addEventListener("click", closeSidebars);
-
-      // Build table of contents from rendered headings
-      let tocObserver = null;
-
-      function buildToc() {
-        const headings = Array.from(
-          markdownContent.querySelectorAll("h1, h2, h3, h4, h5, h6"),
-        );
-
-        if (headings.length === 0) {
-          tocList.innerHTML =
-            '<div class="toc-empty">No headings found in this file</div>';
+        if (!validTypes.includes(fileExtension)) {
+          showError(
+            "Please select a valid markdown file (.md, .markdown, or .txt)",
+          );
           return;
         }
 
-        const minLevel = Math.min(
-          ...headings.map((h) => parseInt(h.tagName[1])),
-        );
-
-        tocList.innerHTML = headings
-          .map((h) => {
-            const level = parseInt(h.tagName[1]);
-            const indent = 16 + (level - minLevel) * 14;
-            const label = h.textContent.trim();
-            return `<div class="toc-item toc-h${level}" data-id="${h.id}" style="padding-left:${indent}px" title="${label}">
-                    <a class="toc-link" href="#${h.id}">${label}</a>
-                </div>`;
-          })
-          .join("");
-
-        // Click: smooth scroll without closing the TOC sidebar.
-        tocList.querySelectorAll(".toc-item").forEach((item) => {
-          item.addEventListener("click", (e) => {
-            e.preventDefault();
-            const target = document.getElementById(item.dataset.id);
-            if (target) {
-              target.scrollIntoView({ behavior: "smooth", block: "start" });
-            }
-          });
-        });
-
-        // Scroll spy via IntersectionObserver
-        if (tocObserver) tocObserver.disconnect();
-
-        tocObserver = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              const item = tocList.querySelector(
-                `.toc-item[data-id="${entry.target.id}"]`,
-              );
-              if (!item) return;
-              if (entry.isIntersecting) {
-                // Deactivate all, activate this one
-                tocList
-                  .querySelectorAll(".toc-item.active")
-                  .forEach((el) => el.classList.remove("active"));
-                item.classList.add("active");
-                // Keep active item visible in sidebar
-                item.scrollIntoView({ block: "nearest" });
-              }
-            });
-          },
-          {
-            rootMargin: "0px 0px -99% 0px",
-            threshold: 0,
-          },
-        );
-
-        headings.forEach((h) => tocObserver.observe(h));
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          renderMarkdown(e.target.result, file.name);
+        };
+        reader.onerror = function () {
+          showError("Error reading file. Please try again.");
+        };
+        reader.readAsText(file);
       }
 
-      function clearToc() {
-        if (tocObserver) {
-          tocObserver.disconnect();
-          tocObserver = null;
+      function setupFileInputHandlers() {
+        loadBtn.addEventListener("click", () => {
+          const file = fileInput.files[0];
+          if (file) {
+            loadFile(file);
+          } else {
+            showError("Please select a file first.");
+          }
+        });
+
+        fileInput.addEventListener("change", (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            loadFile(file);
+          }
+        });
+
+        dropZone.addEventListener("dragover", (e) => {
+          e.preventDefault();
+          dropZone.classList.add("dragover");
+        });
+
+        dropZone.addEventListener("dragleave", (e) => {
+          e.preventDefault();
+          dropZone.classList.remove("dragover");
+        });
+
+        dropZone.addEventListener("drop", (e) => {
+          e.preventDefault();
+          dropZone.classList.remove("dragover");
+
+          const files = e.dataTransfer.files;
+          if (files.length > 0) {
+            loadFile(files[0]);
+          }
+        });
+
+        dropZone.addEventListener("click", () => {
+          fileInput.click();
+        });
+      }
+
+      function loadFileFromUrlParam() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const fileUrl = urlParams.get("file");
+        if (!fileUrl) return;
+
+        fetch(fileUrl)
+          .then((response) => {
+            if (!response.ok) throw new Error("Failed to fetch file");
+            return response.text();
+          })
+          .then((content) => {
+            const filename = fileUrl.split("/").pop() || "README.md";
+            renderMarkdown(content, filename);
+          })
+          .catch((error) => {
+            showError("Error loading file from URL: " + error.message);
+          });
+      }
+
+      // Markdown rendering functions:
+
+      function configureMarked() {
+        configureHeadingRenderer();
+        configureCodeBlockRenderer();
+
+        marked.setOptions({
+          gfm: true,
+          breaks: true,
+          headerIds: true,
+          mangle: false,
+          renderer: renderer,
+        });
+      }
+
+      function configureHeadingRenderer() {
+        renderer.heading = function (text, level) {
+          const id = generateHeadingId(text);
+          return `<h${level} id="${id}">${text}</h${level}>\n`;
+        };
+      }
+
+      function generateHeadingId(text) {
+        const slug = String(text)
+          .toLowerCase()
+          .replace(/<[^>]+>/g, "")
+          .replace(/[^\w\s\u3040-\u9fff-]/g, "")
+          .trim()
+          .replace(/\s+/g, "-");
+
+        headingCounters[slug] = (headingCounters[slug] || 0) + 1;
+        return headingCounters[slug] > 1
+          ? `${slug}-${headingCounters[slug]}`
+          : slug;
+      }
+
+      function resetHeadingCounters() {
+        Object.keys(headingCounters).forEach((key) => delete headingCounters[key]);
+      }
+
+      function renderMarkdown(content, filename) {
+        try {
+          clearError();
+          resetHeadingCounters();
+
+          const html = marked.parse(content);
+          currentFileName = filename;
+          currentFileContent = content;
+          fileName.textContent = filename;
+          markdownContent.innerHTML = html;
+          emptyState.style.display = "none";
+          markdownContent.style.display = "block";
+
+          Prism.highlightAllUnder(markdownContent);
+          renderMermaidDiagrams();
+
+          buildToc();
+          rightTocSidebarToggle.style.display = "flex";
+          rightTocSidebarToggle.classList.remove("hidden");
+
+          addToRecentFiles(filename, content);
+          leftFileSidebarToggle.style.display = "flex";
+          leftFileSidebarToggle.classList.remove("hidden");
+
+        } catch (error) {
+          showError("Error rendering markdown: " + error.message);
         }
-        tocList.innerHTML =
-          '<div class="toc-empty">Open a file to see its headings</div>';
+      }
+
+      function configureCodeBlockRenderer() {
+        renderer.code = function (code, lang) {
+          if (lang === "mermaid") {
+            const id = "mermaid-" + Math.random().toString(36).slice(2, 9);
+            return `<div class="mermaid-container"><div class="mermaid" id="${id}">${escapeHtml(code)}</div></div>`;
+          }
+          if (lang) {
+            return `<pre class="language-${lang}"><code class="language-${lang}">${escapeHtml(code)}${escapeHtml(code)}</code></pre>`;
+          }
+          return `<pre><code>${escapeHtml(code)}</code></pre>`;
+        };
+      }
+
+      function initializeMermaid() {
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: "default",
+          securityLevel: "loose",
+        });
+      }
+
+      function renderMermaidDiagrams() {
+        const mermaidNodes = markdownContent.querySelectorAll(".mermaid");
+        if (mermaidNodes.length === 0) return;
+
+        mermaid.run({ nodes: mermaidNodes }).catch((err) => {
+          mermaidNodes.forEach((node) => {
+            node.closest(".mermaid-container").innerHTML =
+              `<div class="mermaid-error">Mermaid parse error: ${err.message}</div>`;
+          });
+        });
+      }
+
+      // Left File Sidebar functions:
+
+      function openLeftFileSidebar() {
+        leftFileSidebar.classList.add("open");
+        leftFileSidebarToggle.classList.add("hidden");
+      }
+
+      function closeLeftFileSidebar() {
+        leftFileSidebar.classList.remove("open");
+        leftFileSidebarToggle.classList.remove("hidden");
+      }
+
+      function setupLeftFileSidebarHandlers() {
+        leftFileSidebarToggle.addEventListener("click", openLeftFileSidebar);
+        leftFileSidebarClose.addEventListener("click", closeLeftFileSidebar);
+
+        clearAllBtn.addEventListener("click", () => {
+          recentFilesList = [];
+          updateRecentFilesDisplay();
+        });
+      }
+
+      function loadRecentFiles() {
+        updateRecentFilesDisplay();
       }
 
       function addToRecentFiles(filename, content) {
@@ -951,15 +1048,11 @@
           displayTime: formatTime(now),
         };
 
-        // Remove if already exists
         recentFilesList = recentFilesList.filter(
           (file) => file.name !== filename,
         );
 
-        // Add to beginning
         recentFilesList.unshift(fileData);
-
-        // Keep only last 10
         if (recentFilesList.length > 10) {
           recentFilesList = recentFilesList.slice(0, 10);
         }
@@ -1013,8 +1106,10 @@
 
         recentFiles.innerHTML = filesHtml;
         clearAllBtn.style.display = "block";
+        setupRecentFileItemHandlers();
+      }
 
-        // Add click handlers for recent files
+      function setupRecentFileItemHandlers() {
         recentFiles.querySelectorAll(".recent-file-item").forEach((item) => {
           item.addEventListener("click", (e) => {
             if (e.target.classList.contains("recent-file-remove")) return;
@@ -1025,7 +1120,6 @@
           });
         });
 
-        // Add click handlers for remove buttons
         recentFiles.querySelectorAll(".recent-file-remove").forEach((btn) => {
           btn.addEventListener("click", (e) => {
             e.stopPropagation();
@@ -1036,159 +1130,128 @@
         });
       }
 
-      // Clear all recent files
-      clearAllBtn.addEventListener("click", () => {
-        recentFilesList = [];
-        updateRecentFilesDisplay();
-      });
+      // Right TOC Sidebar functions:
 
-      function showError(message) {
-        const existingError = previewContent.querySelector(".error");
-        if (existingError) {
-          existingError.remove();
-        }
-
-        const errorDiv = document.createElement("div");
-        errorDiv.className = "error";
-        errorDiv.textContent = message;
-        previewContent.insertBefore(errorDiv, previewContent.firstChild);
+      function openRightTocSidebar() {
+        rightTocSidebar.classList.add("open");
+        rightTocSidebarToggle.classList.add("active");
+        rightTocSidebarToggle.classList.add("hidden");
       }
 
-      function clearError() {
-        const existingError = previewContent.querySelector(".error");
-        if (existingError) {
-          existingError.remove();
-        }
+      function closeRightTocSidebar() {
+        rightTocSidebar.classList.remove("open");
+        rightTocSidebarToggle.classList.remove("active");
+        rightTocSidebarToggle.classList.remove("hidden");
       }
 
-      function renderMarkdown(content, filename) {
-        try {
-          clearError();
-
-          // Reset duplicate-heading counters before each render
-          Object.keys(headingCounters).forEach(
-            (k) => delete headingCounters[k],
-          );
-
-          const html = marked.parse(content);
-
-          currentFileName = filename;
-          currentFileContent = content;
-          fileName.textContent = filename;
-          markdownContent.innerHTML = html;
-          emptyState.style.display = "none";
-          markdownContent.style.display = "block";
-
-          // Re-run Prism highlighting on the new content
-          Prism.highlightAllUnder(markdownContent);
-
-          // Render mermaid diagrams
-          const mermaidNodes = markdownContent.querySelectorAll(".mermaid");
-          if (mermaidNodes.length > 0) {
-            mermaid.run({ nodes: mermaidNodes }).catch((err) => {
-              mermaidNodes.forEach((node) => {
-                node.closest(".mermaid-container").innerHTML =
-                  `<div class="mermaid-error">Mermaid parse error: ${err.message}</div>`;
-              });
-            });
+      function setupRightTocSidebarHandlers() {
+        rightTocSidebarToggle.addEventListener("click", () => {
+          const isOpen = rightTocSidebar.classList.contains("open");
+          if (isOpen) {
+            closeRightTocSidebar();
+          } else {
+            openRightTocSidebar();
           }
+        });
 
-          // Build table of contents
-          buildToc();
-          tocToggle.style.display = "flex";
-
-          // Add to recent files
-          addToRecentFiles(filename, content);
-        } catch (error) {
-          showError("Error rendering markdown: " + error.message);
-        }
+        rightTocSidebarClose.addEventListener("click", closeRightTocSidebar);
       }
 
-      function loadFile(file) {
-        if (!file) return;
+      function buildToc() {
+        const headings = Array.from(
+          markdownContent.querySelectorAll("h1, h2, h3, h4, h5, h6"),
+        );
 
-        const validTypes = [".md", ".markdown", ".txt"];
-        const fileExtension = "." + file.name.split(".").pop().toLowerCase();
-
-        if (!validTypes.includes(fileExtension)) {
-          showError(
-            "Please select a valid markdown file (.md, .markdown, or .txt)",
-          );
+        if (headings.length === 0) {
+          tocList.innerHTML =
+            '<div class="toc-empty">No headings found in this file</div>';
           return;
         }
 
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          renderMarkdown(e.target.result, file.name);
-        };
-        reader.onerror = function () {
-          showError("Error reading file. Please try again.");
-        };
-        reader.readAsText(file);
+        const minLevel = Math.min(
+          ...headings.map((h) => parseInt(h.tagName[1])),
+        );
+
+        tocList.innerHTML = headings
+          .map((h) => {
+            const level = parseInt(h.tagName[1]);
+            const indent = 16 + (level - minLevel) * 14;
+            const label = h.textContent.trim();
+            return `<div class="toc-item toc-h${level}" data-id="${h.id}" style="padding-left:${indent}px" title="${label}">
+                    <a class="toc-link" href="#${h.id}">${label}</a>
+                </div>`;
+          })
+          .join("");
+
+        setupTocItemHandlers();
+        setupTocScrollSpy(headings);
       }
 
-      // File input handling
-      loadBtn.addEventListener("click", () => {
-        const file = fileInput.files[0];
-        if (file) {
-          loadFile(file);
-        } else {
-          showError("Please select a file first.");
-        }
-      });
-
-      fileInput.addEventListener("change", (e) => {
-        const file = e.target.files[0];
-        if (file) {
-          loadFile(file);
-        }
-      });
-
-      // Drag and drop handling
-      dropZone.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        dropZone.classList.add("dragover");
-      });
-
-      dropZone.addEventListener("dragleave", (e) => {
-        e.preventDefault();
-        dropZone.classList.remove("dragover");
-      });
-
-      dropZone.addEventListener("drop", (e) => {
-        e.preventDefault();
-        dropZone.classList.remove("dragover");
-
-        const files = e.dataTransfer.files;
-        if (files.length > 0) {
-          loadFile(files[0]);
-        }
-      });
-
-      dropZone.addEventListener("click", () => {
-        fileInput.click();
-      });
-
-      // Handle URL parameters for direct file loading
-      const urlParams = new URLSearchParams(window.location.search);
-      const fileUrl = urlParams.get("file");
-      if (fileUrl) {
-        fetch(fileUrl)
-          .then((response) => {
-            if (!response.ok) throw new Error("Failed to fetch file");
-            return response.text();
-          })
-          .then((content) => {
-            const filename = fileUrl.split("/").pop() || "README.md";
-            renderMarkdown(content, filename);
-          })
-          .catch((error) => {
-            showError("Error loading file from URL: " + error.message);
+      function setupTocItemHandlers() {
+        tocList.querySelectorAll(".toc-item").forEach((item) => {
+          item.addEventListener("click", (e) => {
+            e.preventDefault();
+            const target = document.getElementById(item.dataset.id);
+            if (target) {
+              target.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
           });
+        });
       }
 
-      // Initialize recent files on page load
-      loadRecentFiles();
+      function setupTocScrollSpy(headings) {
+        if (tocObserver) tocObserver.disconnect();
+
+        tocObserver = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              const item = tocList.querySelector(
+                `.toc-item[data-id="${entry.target.id}"]`,
+              );
+              if (!item) return;
+              if (entry.isIntersecting) {
+                // Deactivate all, activate this one
+                tocList
+                  .querySelectorAll(".toc-item.active")
+                  .forEach((el) => el.classList.remove("active"));
+                item.classList.add("active");
+                // Keep active item visible in sidebar
+                item.scrollIntoView({ block: "nearest" });
+              }
+            });
+          },
+          {
+            rootMargin: "0px 0px -99% 0px",
+            threshold: 0,
+          },
+        );
+
+        headings.forEach((h) => tocObserver.observe(h));
+      }
+
+      function clearToc() {
+        if (tocObserver) {
+          tocObserver.disconnect();
+          tocObserver = null;
+        }
+        tocList.innerHTML =
+          '<div class="toc-empty">Open a file to see its headings</div>';
+      }
+
+      function initializeApp() {
+        initializeMermaid();
+        configureMarked();
+
+        setupFileInputHandlers();
+        setupLeftFileSidebarHandlers();
+        setupRightTocSidebarHandlers();
+        markdownContent.addEventListener("click", closeSidebars);
+
+        loadFileFromUrlParam();
+        loadRecentFiles();
+      }
+
+      initializeApp();
     </script>
   </body>
 </html>

@@ -7,46 +7,54 @@ A simple, lightweight web-based markdown previewer that renders `.md`, `.markdow
 - **Drag & Drop**: Simply drag markdown files onto the viewer
 - **File Browser**: Use the file input to select files from your system
 - **Recent Files Sidebar**: Quick access to recently opened files
+- **Table of Contents**: Quick access to headings in the content
 - **GitHub-Style Rendering**: Clean, familiar markdown styling
 - **Syntax Highlighting**: Code blocks with language-specific highlighting
+- **Mermaid Diagram Rendering**: Diagrams using code blocks with mermaid syntax
 - **Responsive Design**: Works on desktop and mobile devices
 - **No Installation Required**: Single HTML file, runs in any modern browser
 
 ## Usage
 
 ### Quick Start
+
 1. Download `index.html`
 2. Open it in your web browser
 3. Drag a markdown file onto the drop zone, or use the file input to select a file
 4. View your rendered markdown instantly
 
 ### File Support
+
 - `.md` files
 - `.markdown` files  
 - `.txt` files
 
-### Recent Files
-- Access recently opened files via the right sidebar (click the left icon)
-- Files are automatically added when opened
-- Remove individual files or clear all recent files
-- Recent files persist during your browser session
-
 ### URL Loading
+
 You can also load markdown files directly from URLs by adding a `file` parameter:
 ```
 index.html?file=https://raw.githubusercontent.com/user/repo/main/README.md
 ```
 
+### Recent Files
+
+- Access recently opened files via the right sidebar (click the left icon)
+- Files are automatically added when opened
+- Remove individual files or clear all recent files
+- Recent files persist during your browser session
+
 ### Table of Contents
-- Access the table of contents via the right sidebar (click the right icon in the file name header)
+
+- Access the table of contents via the right sidebar (click the right icon)
 - Click an item in the table of contents to scroll to that header.
 
 ## Technical Details
 
 Built with:
+
 - [Marked.js](https://marked.js.org/) for markdown parsing
 - [Prism.js](https://prismjs.com/) for syntax highlighting
-- [Mermaid.js](https://mermaid.js.org/) for mermaid parsing
+- [Mermaid.js](https://mermaid.js.org/) for rendering Mermaid diagrams
 - Vanilla JavaScript (no frameworks)
 - GitHub-inspired CSS styling
 
@@ -68,13 +76,14 @@ No build process required! Simply:
 
 - Previewing README files before committing
 - Reading documentation without opening an IDE
-- Quickly viewing markdown files from file explorer
+- Quickly viewing markdown files from a file explorer
 - Sharing rendered markdown with others
 - Offline markdown viewing
 
 ## Limitations
+
 - Local image files and links to local files are not supported (Relative-path images in markdown cannot be loaded due to browser security restrictions)
-- Recent file history is lost when the page is closed (Stored in memory only; localStorage is not available in this environment)
+- Recent file history is lost when the page is closed (Stored in memory only; the browser's localStorage is not used)
 - An internet connection is required for external resources (Libraries such as Mermaid, Prism, and marked are loaded from CDN)
 
 ## License
