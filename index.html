@@ -954,7 +954,7 @@
           rightTocSidebarToggle.style.display = "flex";
           rightTocSidebarToggle.classList.remove("hidden");
 
-          addToRecentFiles(filename, content);
+          addToRecentFiles(filename, content, currentMarkdownPath, droppedFiles);
           leftFileSidebarToggle.style.display = "flex";
           leftFileSidebarToggle.classList.remove("hidden");
           downloadHtmlBtn.disabled = false;
@@ -1067,11 +1067,13 @@
         updateRecentFilesDisplay();
       }
 
-      function addToRecentFiles(filename, content) {
+      function addToRecentFiles(filename, content, markdownPath, resourceFiles) {
         const now = new Date();
         const fileData = {
           name: filename,
           content: content,
+          markdownPath: markdownPath,
+          resourceFiles: resourceFiles,
           timestamp: now.toISOString(),
           displayTime: formatTime(now),
         };
@@ -1144,9 +1146,9 @@
 
             const index = parseInt(item.dataset.index);
             const file = recentFilesList[index];
-            droppedFiles = new Map();
-            currentMarkdownPath = file.name;
-            renderMarkdown(file.content, file.name, file.name);
+            droppedFiles = file.resourceFiles || new Map();
+            currentMarkdownPath = file.markdownPath || file.name;
+            renderMarkdown(file.content, file.name, currentMarkdownPath);
           });
         });
 
