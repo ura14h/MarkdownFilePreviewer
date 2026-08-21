@@ -596,13 +596,9 @@
       <!-- File input and drag-and-drop area -->
       <div class="header">
         <div class="file-input-container">
-          <input
-            type="file"
-            class="file-input"
-            accept=".md,.markdown,.txt"
-            id="fileInput"
-          />
-          <button class="load-btn" id="loadBtn">Load File</button>
+          <input class="file-input" id="selectedPathInput" value="No file selected" readonly aria-label="Selected file or folder" />
+          <input type="file" accept=".md,.markdown,.txt" id="fileInput" hidden />
+          <button class="load-btn" id="selectFileBtn">Select File</button>
           <input type="file" id="folderInput" webkitdirectory multiple hidden />
           <button class="load-btn" id="selectFolderBtn">Select Folder</button>
         </div>
@@ -646,7 +642,8 @@
 
       // File input and drag-and-drop elements
       const fileInput = document.getElementById("fileInput");
-      const loadBtn = document.getElementById("loadBtn");
+      const selectedPathInput = document.getElementById("selectedPathInput");
+      const selectFileBtn = document.getElementById("selectFileBtn");
       const folderInput = document.getElementById("folderInput");
       const selectFolderBtn = document.getElementById("selectFolderBtn");
       const dropZone = document.getElementById("dropZone");
@@ -787,6 +784,7 @@
         reader.onload = function (e) {
           droppedFiles = new Map();
           currentMarkdownPath = file.name;
+          selectedPathInput.value = file.name;
           renderMarkdown(e.target.result, file.name, file.name);
         };
         reader.onerror = function () {
@@ -796,20 +794,13 @@
       }
 
       function setupFileInputHandlers() {
-        loadBtn.addEventListener("click", () => {
-          const file = fileInput.files[0];
-          if (file) {
-            loadFile(file);
-          } else {
-            showError("Please select a file first.");
-          }
-        });
-
+        selectFileBtn.addEventListener("click", () => fileInput.click());
         fileInput.addEventListener("change", (e) => {
           const file = e.target.files[0];
           if (file) {
             loadFile(file);
           }
+          e.target.value = "";
         });
 
         if (!("webkitdirectory" in folderInput)) {
@@ -898,7 +889,15 @@
         if (!markdownPath) throw new Error("No markdown file was found in the selected folder.");
         droppedFiles = files;
         currentMarkdownPath = markdownPath;
+        selectedPathInput.value = relativePathRoot(fileList) || markdownPath;
         renderMarkdown(await files.get(markdownPath).text(), markdownPath, markdownPath);
+      }
+
+      function relativePathRoot(fileList) {
+        const firstFile = fileList[0];
+        return firstFile && firstFile.webkitRelativePath
+          ? firstFile.webkitRelativePath.split("/")[0]
+          : "";
       }
 
       async function handleDrop(dataTransfer) {
@@ -921,6 +920,7 @@
         if (!markdownPath) throw new Error("No markdown file was found in the dropped folder.");
         droppedFiles = files;
         currentMarkdownPath = markdownPath;
+        selectedPathInput.value = markdownPath;
         renderMarkdown(await files.get(markdownPath).text(), markdownPath, markdownPath);
       }
 
