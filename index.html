@@ -1082,8 +1082,14 @@
               file.resourceFiles === resourceFiles,
         );
         const existingFile = recentFilesList[existingIndex];
+        if (existingFile) {
+          currentRecentFileId = existingFile.id;
+          updateRecentFilesDisplay();
+          return;
+        }
+
         const fileData = {
-          id: existingFile ? existingFile.id : nextRecentFileId++,
+          id: nextRecentFileId++,
           name: filename,
           content: content,
           markdownPath: markdownPath,
@@ -1091,8 +1097,6 @@
           timestamp: now.toISOString(),
           displayTime: formatTime(now),
         };
-
-        if (existingIndex !== -1) recentFilesList.splice(existingIndex, 1);
 
         currentRecentFileId = fileData.id;
         recentFilesList.unshift(fileData);
