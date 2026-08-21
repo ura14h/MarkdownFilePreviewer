@@ -718,8 +718,8 @@
         </div>
 
         <div class="drop-zone" id="dropZone">
-          <strong>Drop a markdown file here</strong> or use the file input above
-          <br /><small>Supports .md, .markdown, and .txt files</small>
+          <strong>Drop a markdown file or folder here</strong> or use the file input above
+          <br /><small>Supports .md, .markdown, and .txt files; folders can include local images</small>
         </div>
       </div>
 
@@ -782,6 +782,9 @@
       let recentFilesList = [];
       let currentFileContent = "";
       let currentFileName = "";
+      let currentMarkdownPath = "";
+      let droppedFiles = new Map();
+      let previewObjectUrls = [];
 
       // TOC observer state
       let tocObserver = null;
@@ -818,6 +821,51 @@
         }
       }
 
+      function isMarkdownFile(file) {
+        return /\.(md|markdown|txt)$/i.test(file.name);
+      }
+
+      function normalizePath(path) {
+        const parts = [];
+        String(path).replace(/\\/g, "/").split("/").forEach((part) => {
+          if (!part || part === ".") return;
+          if (part === "..") parts.pop();
+          else parts.push(part);
+        });
+        return parts.join("/");
+      }
+
+      function decodePath(path) {
+        try { return decodeURIComponent(path); } catch (_) { return path; }
+      }
+
+      function resolveLocalPath(src) {
+        const cleanSrc = decodePath(src.split("#")[0].split("?")[0]);
+        return normalizePath(`${currentMarkdownPath.split("/").slice(0, -1).join("/")}/${cleanSrc}`);
+      }
+
+      function revokePreviewObjectUrls() {
+        previewObjectUrls.forEach((url) => URL.revokeObjectURL(url));
+        previewObjectUrls = [];
+      }
+
+      function getDroppedFile(path) {
+        return droppedFiles.get(path) || droppedFiles.get(decodePath(path));
+      }
+
+      function replaceLocalImagesForPreview() {
+        markdownContent.querySelectorAll("img[src]").forEach((img) => {
+          const source = img.getAttribute("src") || "";
+          if (/^(data:|blob:|https?:|#)/i.test(source)) return;
+          const file = getDroppedFile(resolveLocalPath(source));
+          if (!file) return;
+          const objectUrl = URL.createObjectURL(file);
+          previewObjectUrls.push(objectUrl);
+          img.src = objectUrl;
+          img.dataset.localPath = resolveLocalPath(source);
+        });
+      }
+
       // Common UI functions:
 
       function closeSidebars() {
@@ -830,10 +878,7 @@
       function loadFile(file) {
         if (!file) return;
 
-        const validTypes = [".md", ".markdown", ".txt"];
-        const fileExtension = "." + file.name.split(".").pop().toLowerCase();
-
-        if (!validTypes.includes(fileExtension)) {
+        if (!isMarkdownFile(file)) {
           showError(
             "Please select a valid markdown file (.md, .markdown, or .txt)",
           );
@@ -842,7 +887,9 @@
 
         const reader = new FileReader();
         reader.onload = function (e) {
-          renderMarkdown(e.target.result, file.name);
+          droppedFiles = new Map();
+          currentMarkdownPath = file.name;
+          renderMarkdown(e.target.result, file.name, file.name);
         };
         reader.onerror = function () {
           showError("Error reading file. Please try again.");
@@ -880,16 +927,67 @@
         dropZone.addEventListener("drop", (e) => {
           e.preventDefault();
           dropZone.classList.remove("dragover");
-
-          const files = e.dataTransfer.files;
-          if (files.length > 0) {
-            loadFile(files[0]);
-          }
+          handleDrop(e.dataTransfer).catch((error) => showError("Error reading dropped item: " + error.message));
         });
 
         dropZone.addEventListener("click", () => {
           fileInput.click();
         });
+      }
+
+      function readAllDirectoryEntries(reader) {
+        const entries = [];
+        return new Promise((resolve, reject) => {
+          const readBatch = () => reader.readEntries((batch) => {
+            if (!batch.length) return resolve(entries);
+            entries.push(...batch);
+            readBatch();
+          }, reject);
+          readBatch();
+        });
+      }
+
+      function entryFile(entry) {
+        return new Promise((resolve, reject) => entry.file(resolve, reject));
+      }
+
+      async function collectEntryFiles(entry, relativePath = "") {
+        const path = normalizePath(`${relativePath}/${entry.name}`);
+        if (entry.isFile) return [{ path, file: await entryFile(entry) }];
+        if (!entry.isDirectory) return [];
+        const entries = await readAllDirectoryEntries(entry.createReader());
+        const results = await Promise.all(entries.map((child) => collectEntryFiles(child, path)));
+        return results.flat();
+      }
+
+      function selectMarkdownPath(files) {
+        const markdownPaths = [...files.keys()].filter((path) => /\.(md|markdown|txt)$/i.test(path));
+        const rootFiles = markdownPaths.filter((path) => !path.includes("/"));
+        const preferred = (name) => rootFiles.find((path) => path.toLowerCase() === name);
+        return preferred("readme.md") || preferred("index.md") || (markdownPaths.length === 1 ? markdownPaths[0] : (rootFiles.length ? rootFiles : markdownPaths).sort((a, b) => a.localeCompare(b))[0]);
+      }
+
+      async function handleDrop(dataTransfer) {
+        const items = [...dataTransfer.items];
+        const entries = items.map((item) => item.webkitGetAsEntry && item.webkitGetAsEntry()).filter(Boolean);
+        if (!entries.length || !entries.some((entry) => entry.isDirectory)) {
+          const file = dataTransfer.files[0];
+          if (file) loadFile(file);
+          return;
+        }
+        const collected = (await Promise.all(entries.map(async (entry) => {
+          if (entry.isDirectory) {
+            const children = await readAllDirectoryEntries(entry.createReader());
+            return (await Promise.all(children.map((child) => collectEntryFiles(child)))).flat();
+          }
+          return collectEntryFiles(entry);
+        }))).flat();
+        const files = new Map(collected.map(({ path, file }) => [path, file]));
+        const markdownPath = selectMarkdownPath(files);
+        if (!markdownPath) throw new Error("No markdown file was found in the dropped folder.");
+        droppedFiles = files;
+        currentMarkdownPath = markdownPath;
+        renderMarkdown(await files.get(markdownPath).text(), markdownPath, markdownPath);
       }
 
       function loadFileFromUrlParam() {
@@ -904,7 +1002,9 @@
           })
           .then((content) => {
             const filename = fileUrl.split("/").pop() || "README.md";
-            renderMarkdown(content, filename);
+            droppedFiles = new Map();
+            currentMarkdownPath = filename;
+            renderMarkdown(content, filename, filename);
           })
           .catch((error) => {
             showError("Error loading file from URL: " + error.message);
@@ -951,21 +1051,24 @@
         Object.keys(headingCounters).forEach((key) => delete headingCounters[key]);
       }
 
-      function renderMarkdown(content, filename) {
+      async function renderMarkdown(content, filename, relativePath = filename) {
         try {
           clearError();
           resetHeadingCounters();
+          revokePreviewObjectUrls();
 
           const html = marked.parse(content);
           currentFileName = filename;
           currentFileContent = content;
+          currentMarkdownPath = normalizePath(relativePath);
           fileName.textContent = filename;
           markdownContent.innerHTML = html;
+          replaceLocalImagesForPreview();
           emptyState.style.display = "none";
           markdownContent.style.display = "block";
 
           Prism.highlightAllUnder(markdownContent);
-          renderMermaidDiagrams();
+          await renderMermaidDiagrams();
 
           buildToc();
           rightTocSidebarToggle.style.display = "flex";
@@ -987,7 +1090,7 @@
             return `<div class="mermaid-container"><div class="mermaid" id="${id}">${escapeHtml(code)}</div></div>`;
           }
           if (lang) {
-            return `<pre class="language-${lang}"><code class="language-${lang}">${escapeHtml(code)}${escapeHtml(code)}</code></pre>`;
+            return `<pre class="language-${lang}"><code class="language-${lang}">${escapeHtml(code)}</code></pre>`;
           }
           return `<pre><code>${escapeHtml(code)}</code></pre>`;
         };
@@ -1005,7 +1108,7 @@
         const mermaidNodes = markdownContent.querySelectorAll(".mermaid");
         if (mermaidNodes.length === 0) return;
 
-        mermaid.run({ nodes: mermaidNodes }).catch((err) => {
+        return mermaid.run({ nodes: mermaidNodes }).catch((err) => {
           mermaidNodes.forEach((node) => {
             node.closest(".mermaid-container").innerHTML =
               `<div class="mermaid-error">Mermaid parse error: ${err.message}</div>`;
@@ -1116,7 +1219,9 @@
 
             const index = parseInt(item.dataset.index);
             const file = recentFilesList[index];
-            renderMarkdown(file.content, file.name);
+            droppedFiles = new Map();
+            currentMarkdownPath = file.name;
+            renderMarkdown(file.content, file.name, file.name);
           });
         });
 
