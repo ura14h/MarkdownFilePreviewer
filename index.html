@@ -576,7 +576,7 @@
             />
           </svg>
           <span id="fileName">&nbsp;</span>
-          <div class="document-actions">
+          <div class="document-actions" id="documentActions" style="display: none">
             <button class="document-action-btn" id="downloadHtmlBtn" disabled>Download HTML</button>
             <button class="document-action-btn" id="printBtn" disabled>Print / Save PDF</button>
           </div>
@@ -610,6 +610,7 @@
       const emptyState = document.getElementById("emptyState");
       const previewContent = document.querySelector(".preview-content");
       const markdownContent = document.getElementById("markdownContent");
+      const documentActions = document.getElementById("documentActions");
       const downloadHtmlBtn = document.getElementById("downloadHtmlBtn");
       const printBtn = document.getElementById("printBtn");
 
@@ -957,6 +958,7 @@
           leftFileSidebarToggle.classList.remove("hidden");
           downloadHtmlBtn.disabled = false;
           printBtn.disabled = false;
+          documentActions.style.display = "flex";
 
         } catch (error) {
           showError("Error rendering markdown: " + error.message);
