@@ -876,7 +876,11 @@
           }
           return collectEntryFiles(entry);
         }))).flat();
-        const files = new Map(collected.map(({ path, file }) => [path, file]));
+        const files = new Map();
+        collected.forEach(({ path, file }) => {
+          files.set(path, file);
+          files.set(decodePath(path), file);
+        });
         const markdownPath = selectMarkdownPath(files);
         if (!markdownPath) throw new Error("No markdown file was found in the dropped folder.");
         droppedFiles = files;
