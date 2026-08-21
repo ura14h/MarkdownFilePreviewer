@@ -54,6 +54,8 @@ You can also load markdown files directly from URLs by adding a `file` parameter
 index.html?file=https://raw.githubusercontent.com/user/repo/main/README.md
 ```
 
+The target URL must allow cross-origin requests (CORS). Encode the URL before using it as a `file` parameter when it contains its own query string or fragment.
+
 ### Recent Files
 
 - Access recently opened files via the left sidebar (click the left icon)
