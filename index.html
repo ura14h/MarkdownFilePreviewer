@@ -36,54 +36,18 @@
 
       /* File input and drag-and-drop area styles */
 
-      .header {
-        background: #f6f8fa;
-        border: 1px solid #d0d7de;
+      .drop-zone {
+        border: 2px dashed #d0d7de;
         border-radius: 6px;
-        padding: 16px;
-        margin-bottom: 20px;
-      }
-
-      .file-input-container {
+        color: #656d76;
         display: flex;
         align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
         gap: 12px;
-        margin-bottom: 12px;
-      }
-
-      .file-input {
-        flex: 1;
-        padding: 8px 12px;
-        border: 1px solid #d0d7de;
-        border-radius: 6px;
-        font-size: 14px;
-        background: white;
-      }
-
-      .file-input:focus {
-        outline: none;
-        border-color: #0969da;
-        box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.1);
-      }
-
-      .load-btn {
-        background: #1f883d;
-        color: white;
-        border: none;
-        padding: 8px 16px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 500;
-      }
-
-      .load-btn:hover {
-        background: #1a7f37;
-      }
-
-      .load-btn:disabled {
-        background: #8cc665;
-        cursor: not-allowed;
+        margin-bottom: 20px;
+        padding: 10px 16px;
+        transition: all 0.2s;
       }
 
       .document-actions {
@@ -107,14 +71,9 @@
         background: #f3f4f6;
       }
 
-      .drop-zone {
-        border: 2px dashed #d0d7de;
-        border-radius: 6px;
-        padding: 20px;
-        text-align: center;
-        color: #656d76;
-        cursor: pointer;
-        transition: all 0.2s;
+      .drop-zone-copy small {
+        display: block;
+        font-size: 12px;
       }
 
       .drop-zone:hover,
@@ -594,20 +553,18 @@
     <div class="container">
 
       <!-- File input and drag-and-drop area -->
-      <div class="header">
-        <div class="file-input-container">
-          <input class="file-input" id="selectedPathInput" value="No file selected" readonly aria-label="Selected file or folder" />
+      <div class="drop-zone" id="dropZone">
+          <div class="drop-zone-copy">
+            <strong>Drop a markdown file or folder here</strong>
+            <small>Folders can include local images</small>
+          </div>
+          <div class="document-actions">
           <input type="file" accept=".md,.markdown,.txt" id="fileInput" hidden />
-          <button class="load-btn" id="selectFileBtn">Select File</button>
+          <button class="document-action-btn" id="selectFileBtn">Select File</button>
           <input type="file" id="folderInput" webkitdirectory multiple hidden />
-          <button class="load-btn" id="selectFolderBtn">Select Folder</button>
+          <button class="document-action-btn" id="selectFolderBtn">Select Folder</button>
+          </div>
         </div>
-
-        <div class="drop-zone" id="dropZone">
-          <strong>Drop a markdown file or folder here</strong> or use the file input above
-          <br /><small>Supports .md, .markdown, and .txt files; folders can include local images</small>
-        </div>
-      </div>
 
       <!-- Preview container -->
       <div class="preview-container">
@@ -642,7 +599,6 @@
 
       // File input and drag-and-drop elements
       const fileInput = document.getElementById("fileInput");
-      const selectedPathInput = document.getElementById("selectedPathInput");
       const selectFileBtn = document.getElementById("selectFileBtn");
       const folderInput = document.getElementById("folderInput");
       const selectFolderBtn = document.getElementById("selectFolderBtn");
@@ -784,7 +740,6 @@
         reader.onload = function (e) {
           droppedFiles = new Map();
           currentMarkdownPath = file.name;
-          selectedPathInput.value = file.name;
           renderMarkdown(e.target.result, file.name, file.name);
         };
         reader.onerror = function () {
@@ -831,9 +786,6 @@
           handleDrop(e.dataTransfer).catch((error) => showError("Error reading dropped item: " + error.message));
         });
 
-        dropZone.addEventListener("click", () => {
-          fileInput.click();
-        });
       }
 
       function readAllDirectoryEntries(reader) {
@@ -889,15 +841,7 @@
         if (!markdownPath) throw new Error("No markdown file was found in the selected folder.");
         droppedFiles = files;
         currentMarkdownPath = markdownPath;
-        selectedPathInput.value = relativePathRoot(fileList) || markdownPath;
         renderMarkdown(await files.get(markdownPath).text(), markdownPath, markdownPath);
-      }
-
-      function relativePathRoot(fileList) {
-        const firstFile = fileList[0];
-        return firstFile && firstFile.webkitRelativePath
-          ? firstFile.webkitRelativePath.split("/")[0]
-          : "";
       }
 
       async function handleDrop(dataTransfer) {
@@ -920,7 +864,6 @@
         if (!markdownPath) throw new Error("No markdown file was found in the dropped folder.");
         droppedFiles = files;
         currentMarkdownPath = markdownPath;
-        selectedPathInput.value = markdownPath;
         renderMarkdown(await files.get(markdownPath).text(), markdownPath, markdownPath);
       }
 
