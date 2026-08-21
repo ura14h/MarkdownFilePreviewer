@@ -966,8 +966,10 @@
           rightTocSidebarToggle.classList.remove("hidden");
 
           addToRecentFiles(filename, content, currentMarkdownPath, droppedFiles);
-          leftFileSidebarToggle.style.display = "flex";
-          leftFileSidebarToggle.classList.remove("hidden");
+          if (!leftFileSidebar.classList.contains("open")) {
+            leftFileSidebarToggle.style.display = "flex";
+            leftFileSidebarToggle.classList.remove("hidden");
+          }
           downloadHtmlBtn.disabled = false;
           printBtn.disabled = false;
           documentActions.style.display = "flex";
