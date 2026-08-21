@@ -639,6 +639,8 @@
       let currentMarkdownPath = "";
       let droppedFiles = new Map();
       let previewObjectUrls = [];
+      let currentRecentFileId = null;
+      let nextRecentFileId = 1;
 
       // TOC observer state
       let tocObserver = null;
@@ -931,11 +933,12 @@
         Object.keys(headingCounters).forEach((key) => delete headingCounters[key]);
       }
 
-      async function renderMarkdown(content, filename, relativePath = filename) {
+      async function renderMarkdown(content, filename, relativePath = filename, recentFileId = null) {
         try {
           clearError();
           resetHeadingCounters();
           revokePreviewObjectUrls();
+          currentRecentFileId = recentFileId;
 
           const html = marked.parse(content);
           currentFileName = filename;
@@ -1059,6 +1062,7 @@
 
         clearAllBtn.addEventListener("click", () => {
           recentFilesList = [];
+          currentRecentFileId = null;
           updateRecentFilesDisplay();
         });
       }
@@ -1069,7 +1073,17 @@
 
       function addToRecentFiles(filename, content, markdownPath, resourceFiles) {
         const now = new Date();
+        const existingIndex = recentFilesList.findIndex((file) =>
+          currentRecentFileId
+            ? file.id === currentRecentFileId
+            : file.name === filename &&
+              file.content === content &&
+              file.markdownPath === markdownPath &&
+              file.resourceFiles === resourceFiles,
+        );
+        const existingFile = recentFilesList[existingIndex];
         const fileData = {
+          id: existingFile ? existingFile.id : nextRecentFileId++,
           name: filename,
           content: content,
           markdownPath: markdownPath,
@@ -1078,10 +1092,9 @@
           displayTime: formatTime(now),
         };
 
-        recentFilesList = recentFilesList.filter(
-          (file) => file.name !== filename,
-        );
+        if (existingIndex !== -1) recentFilesList.splice(existingIndex, 1);
 
+        currentRecentFileId = fileData.id;
         recentFilesList.unshift(fileData);
         if (recentFilesList.length > 10) {
           recentFilesList = recentFilesList.slice(0, 10);
@@ -1119,7 +1132,7 @@
         const filesHtml = recentFilesList
           .map(
             (file, index) => `
-                <div class="recent-file-item ${file.name === currentFileName ? "active" : ""}" 
+                <div class="recent-file-item ${file.id === currentRecentFileId ? "active" : ""}"
                      data-index="${index}">
                     <svg class="file-icon" viewBox="0 0 16 16">
                         <path d="M2 1.75C2 .784 2.784 0 3.75 0h6.586c.464 0 .909.184 1.237.513l2.914 2.914c.329.328.513.773.513 1.237v9.586A1.75 1.75 0 0 1 13.25 16h-9.5A1.75 1.75 0 0 1 2 14.25Zm1.75-.25a.25.25 0 0 0-.25.25v12.5c0 .138.112.25.25.25h9.5a.25.25 0 0 0 .25-.25V6h-2.75A1.75 1.75 0 0 1 9 4.25V1.5Zm6.75.062V4.25c0 .138.112.25.25.25h2.688l-.011-.013-2.914-2.914-.013-.011Z"/>
@@ -1148,7 +1161,7 @@
             const file = recentFilesList[index];
             droppedFiles = file.resourceFiles || new Map();
             currentMarkdownPath = file.markdownPath || file.name;
-            renderMarkdown(file.content, file.name, currentMarkdownPath);
+            renderMarkdown(file.content, file.name, currentMarkdownPath, file.id);
           });
         });
 
@@ -1156,6 +1169,9 @@
           btn.addEventListener("click", (e) => {
             e.stopPropagation();
             const index = parseInt(btn.dataset.index);
+            if (recentFilesList[index].id === currentRecentFileId) {
+              currentRecentFileId = null;
+            }
             recentFilesList.splice(index, 1);
             updateRecentFilesDisplay();
           });
