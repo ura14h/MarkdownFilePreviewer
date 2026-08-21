@@ -962,8 +962,10 @@
           await renderMermaidDiagrams();
 
           buildToc();
-          rightTocSidebarToggle.style.display = "flex";
-          rightTocSidebarToggle.classList.remove("hidden");
+          if (!rightTocSidebar.classList.contains("open")) {
+            rightTocSidebarToggle.style.display = "flex";
+            rightTocSidebarToggle.classList.remove("hidden");
+          }
 
           addToRecentFiles(filename, content, currentMarkdownPath, droppedFiles);
           if (!leftFileSidebar.classList.contains("open")) {
