@@ -765,6 +765,7 @@
       function showSafePreview() {
         sandboxPreview.hidden = true;
         sandboxPreview.removeAttribute("srcdoc");
+        sandboxPreview.style.removeProperty("height");
         markdownContent.style.display = "block";
         if (!safeModeControl.hidden) {
           safeModeCheckbox.checked = true;
@@ -1135,7 +1136,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'unsafe-inline'; img-src data: blob: https:; font-src https:; connect-src 'none'; base-uri 'none'; form-action 'none'">
 <title>${escapedTitle}</title>
-<style>body { margin: 0; padding: 24px; } ${css}</style>
+<style>body { margin: 0; } ${css}</style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"><\/script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.12.0/mermaid.min.js"><\/script>
 </head>
@@ -1160,12 +1161,16 @@
       node.closest(".mermaid-container").replaceChildren(errorDiv);
     });
   });
+  const reportHeight = () => parent.postMessage({ type: "markdown-preview-height", height: document.documentElement.scrollHeight }, "*");
+  new ResizeObserver(reportHeight).observe(document.documentElement);
+  requestAnimationFrame(reportHeight);
 <\/script>
 </body>
 </html>`;
       }
 
       function showTrustedPreview() {
+        sandboxPreview.style.height = "500px";
         sandboxPreview.srcdoc = buildSandboxPreviewDocument(
           currentFileContent,
           currentFileName || "Markdown Document",
@@ -1175,6 +1180,14 @@
         safeModeCheckbox.checked = false;
         safeModeControl.title = "Safe mode is disabled. The original document is displayed in an isolated sandbox.";
       }
+
+      window.addEventListener("message", (event) => {
+        if (event.source !== sandboxPreview.contentWindow) return;
+        if (event.data?.type !== "markdown-preview-height") return;
+        const height = Number(event.data.height);
+        if (!Number.isFinite(height)) return;
+        sandboxPreview.style.height = `${Math.min(Math.max(Math.ceil(height), 500), 10000)}px`;
+      });
 
       function readAsDataUrl(file) {
         return new Promise((resolve, reject) => {
