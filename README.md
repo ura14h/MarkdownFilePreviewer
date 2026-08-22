@@ -51,7 +51,11 @@ Images referenced with relative paths, such as `images/diagram.png` or `../asset
 
 ### Content Safety
 
-Markdown is sanitized before it is added to the normal preview, and Mermaid runs in `strict` security mode there. When this changes the document, a **Safe mode** checkbox appears in the document controls. Disable it only for content you trust and need to inspect with HTML labels or click actions; that view is isolated from the previewer application. Downloads and printed output always use the safe preview.
+Markdown opens in **Safe mode** by default. Unsafe HTML and Mermaid links or click actions are disabled.
+
+If a document needs HTML formatting or Mermaid interactions, a **Safe mode** checkbox appears in the document controls. Turn it off only for content you trust. After a warning, the original content is shown in an isolated preview.
+
+Downloaded HTML files and printed documents always use the safe preview.
 
 ### URL Loading
 
