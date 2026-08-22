@@ -4,13 +4,15 @@ A simple, lightweight web-based markdown previewer that renders `.md`, `.markdow
 
 ## Features
 
-- **Drag & Drop**: Simply drag markdown files onto the viewer
-- **File Browser**: Use the file input to select files from your system
+- **File and Folder Selection**: Select or drag markdown files and folders onto the viewer
+- **Local Relative Images**: Preview images referenced from markdown files in a selected folder
 - **Recent Files Sidebar**: Quick access to recently opened files
 - **Table of Contents**: Quick access to headings in the content
 - **GitHub-Style Rendering**: Clean, familiar markdown styling
 - **Syntax Highlighting**: Code blocks with language-specific highlighting
 - **Mermaid Diagram Rendering**: Diagrams using code blocks with mermaid syntax
+- **Standalone HTML Export**: Download the current preview as a self-contained HTML document
+- **Print / Save PDF**: Open the browser print dialog with previewer controls hidden
 - **Responsive Design**: Works on desktop and mobile devices
 - **No Installation Required**: Single HTML file, runs in any modern browser
 
@@ -20,7 +22,7 @@ A simple, lightweight web-based markdown previewer that renders `.md`, `.markdow
 
 1. Download `index.html`
 2. Open it in your web browser
-3. Drag a markdown file onto the drop zone, or use the file input to select a file
+3. Drag a markdown file or folder onto the drop zone, or select a file or folder
 4. View your rendered markdown instantly
 
 ### File Support
@@ -29,6 +31,22 @@ A simple, lightweight web-based markdown previewer that renders `.md`, `.markdow
 - `.markdown` files  
 - `.txt` files
 
+### Folder Preview and Local Images
+
+Select or drop a folder containing markdown and image files. The viewer chooses a markdown file using the following order:
+
+1. `README.md` in the folder root
+2. `index.md` in the folder root
+3. The only markdown file, if there is one
+4. A root-level markdown file, then the first markdown file by name
+
+Images referenced with relative paths, such as `images/diagram.png` or `../assets/logo.svg`, are displayed when the referenced files are included in the selected folder.
+
+### Export and Print
+
+- Use **Download HTML** to save the rendered markdown as a standalone HTML file. Local images from a selected folder are embedded in the downloaded file.
+- Use **Print / Save PDF** to open your browser's print dialog. Previewer controls and sidebars are hidden from the printed output.
+
 ### URL Loading
 
 You can also load markdown files directly from URLs by adding a `file` parameter:
@@ -36,9 +54,11 @@ You can also load markdown files directly from URLs by adding a `file` parameter
 index.html?file=https://raw.githubusercontent.com/user/repo/main/README.md
 ```
 
+The target URL must allow cross-origin requests (CORS). Encode the URL before using it as a `file` parameter when it contains its own query string or fragment.
+
 ### Recent Files
 
-- Access recently opened files via the right sidebar (click the left icon)
+- Access recently opened files via the left sidebar (click the left icon)
 - Files are automatically added when opened
 - Remove individual files or clear all recent files
 - Recent files persist during your browser session
@@ -82,7 +102,8 @@ No build process required! Simply:
 
 ## Limitations
 
-- Local image files and links to local files are not supported (Relative-path images in markdown cannot be loaded due to browser security restrictions)
+- Local relative images are supported only when the markdown file is opened as part of a selected folder
+- External images remain external URLs in downloaded HTML files
 - Recent file history is lost when the page is closed (Stored in memory only; the browser's localStorage is not used)
 - An internet connection is required for external resources (Libraries such as Mermaid, Prism, and marked are loaded from CDN)
 
