@@ -11,6 +11,8 @@ A simple, lightweight web-based markdown previewer that renders `.md`, `.markdow
 - **GitHub-Style Rendering**: Clean, familiar markdown styling
 - **Syntax Highlighting**: Code blocks with language-specific highlighting
 - **Mermaid Diagram Rendering**: Diagrams using code blocks with mermaid syntax
+- **Safe Preview by Default**: Removes unsafe HTML and disables Mermaid HTML/click features
+- **Sandboxed Original Preview**: Review content that requires those features in an isolated iframe
 - **Standalone HTML Export**: Download the current preview as a self-contained HTML document
 - **Print / Save PDF**: Open the browser print dialog with previewer controls hidden
 - **Responsive Design**: Works on desktop and mobile devices
@@ -44,8 +46,16 @@ Images referenced with relative paths, such as `images/diagram.png` or `../asset
 
 ### Export and Print
 
-- Use **Download HTML** to save the rendered markdown as a standalone HTML file. Local images from a selected folder are embedded in the downloaded file.
+- Use **Download HTML** to save the safe rendered markdown as a standalone HTML file. Local images from a selected folder are embedded in the downloaded file.
 - Use **Print / Save PDF** to open your browser's print dialog. Previewer controls and sidebars are hidden from the printed output.
+
+### Content Safety
+
+Markdown opens in **Safe mode** by default. Unsafe HTML and Mermaid links or click actions are disabled.
+
+If a document needs HTML formatting or Mermaid interactions, a **Safe mode** checkbox appears in the document controls. Turn it off only for content you trust. After a warning, the original content is shown in an isolated preview.
+
+Downloaded HTML files and printed documents always use the safe preview.
 
 ### URL Loading
 
@@ -75,6 +85,7 @@ Built with:
 - [Marked.js](https://marked.js.org/) for markdown parsing
 - [Prism.js](https://prismjs.com/) for syntax highlighting
 - [Mermaid.js](https://mermaid.js.org/) for rendering Mermaid diagrams
+- [DOMPurify](https://github.com/cure53/DOMPurify) for HTML sanitization
 - Vanilla JavaScript (no frameworks)
 - GitHub-inspired CSS styling
 
@@ -105,7 +116,7 @@ No build process required! Simply:
 - Local relative images are supported only when the markdown file is opened as part of a selected folder
 - External images remain external URLs in downloaded HTML files
 - Recent file history is lost when the page is closed (Stored in memory only; the browser's localStorage is not used)
-- An internet connection is required for external resources (Libraries such as Mermaid, Prism, and marked are loaded from CDN)
+- An internet connection is required for external resources (Libraries such as Mermaid, Prism, Marked, and DOMPurify are loaded from CDN)
 
 ## License
 
