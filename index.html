@@ -137,28 +137,19 @@
         margin-bottom: 16px;
       }
 
-      .content-safety-notice {
-        align-items: center;
+      .preview-security-toggle {
         background: #fff8c5;
         border: 1px solid #d4a72c;
-        border-radius: 6px;
+        border-radius: 999px;
         color: #4d2d00;
-        display: flex;
-        gap: 12px;
-        justify-content: space-between;
-        margin: 16px;
-        padding: 10px 12px;
-      }
-
-      .content-safety-notice p {
+        cursor: pointer;
         font-size: 13px;
-        margin: 0;
+        margin-left: 8px;
+        padding: 3px 9px;
       }
 
-      .content-safety-notice-actions {
-        display: flex;
-        flex-shrink: 0;
-        gap: 8px;
+      .preview-security-toggle:hover {
+        background: #fff1a8;
       }
 
       .sandbox-preview {
@@ -526,7 +517,7 @@
     <style id="print-style">
       @media print {
         body { background: #fff; }
-        .left-file-sidebar-toggle, .right-toc-sidebar-toggle, .left-file-sidebar, .right-toc-sidebar, .drop-zone, .preview-header, .content-safety-notice, .sandbox-preview { display: none !important; }
+        .left-file-sidebar-toggle, .right-toc-sidebar-toggle, .left-file-sidebar, .right-toc-sidebar, .drop-zone, .preview-header, .sandbox-preview { display: none !important; }
         .container, .preview-container, .preview-content { max-width: none; margin: 0; padding: 0; border: 0; box-shadow: none; }
         .markdown-body { display: block !important; }
       }
@@ -617,6 +608,12 @@
             />
           </svg>
           <span id="fileName">&nbsp;</span>
+          <button
+            class="preview-security-toggle"
+            id="previewSecurityToggle"
+            title="View the original document in an isolated sandbox"
+            hidden
+          >Original</button>
           <div class="document-actions" id="documentActions" style="display: none">
             <button class="document-action-btn" id="downloadHtmlBtn" disabled>Download HTML</button>
             <button class="document-action-btn" id="printBtn" disabled>Print / Save PDF</button>
@@ -626,13 +623,6 @@
           <div class="empty-state" id="emptyState">
             <h3>No file loaded</h3>
             <p>Select a markdown file to see the preview here</p>
-          </div>
-          <div class="content-safety-notice" id="contentSafetyNotice" hidden>
-            <p id="contentSafetyMessage"></p>
-            <div class="content-safety-notice-actions">
-              <button class="document-action-btn" id="viewTrustedPreviewBtn">View original in sandbox</button>
-              <button class="document-action-btn" id="returnSafePreviewBtn" hidden>Return to safe preview</button>
-            </div>
           </div>
           <div
             class="markdown-body"
@@ -669,10 +659,7 @@
       const documentActions = document.getElementById("documentActions");
       const downloadHtmlBtn = document.getElementById("downloadHtmlBtn");
       const printBtn = document.getElementById("printBtn");
-      const contentSafetyNotice = document.getElementById("contentSafetyNotice");
-      const contentSafetyMessage = document.getElementById("contentSafetyMessage");
-      const viewTrustedPreviewBtn = document.getElementById("viewTrustedPreviewBtn");
-      const returnSafePreviewBtn = document.getElementById("returnSafePreviewBtn");
+      const previewSecurityToggle = document.getElementById("previewSecurityToggle");
       const sandboxPreview = document.getElementById("sandboxPreview");
 
       // Left File Sidebar elements
@@ -754,27 +741,22 @@
         return mermaidBlocks.some((block) => /<\/?[a-z][^>]*>|^\s*click\s+/im.test(block));
       }
 
-      function updateContentSafetyNotice(removedCount, hasTrustedMermaidFeatures) {
-        const messages = [];
-        if (removedCount) {
-          messages.push(`Removed ${removedCount} unsafe HTML item${removedCount === 1 ? "" : "s"}.`);
-        }
-        if (hasTrustedMermaidFeatures) {
-          messages.push("The safe preview disables Mermaid HTML and click features.");
-        }
-
-        contentSafetyNotice.hidden = messages.length === 0;
-        contentSafetyMessage.textContent = messages.join(" ");
-        viewTrustedPreviewBtn.hidden = false;
-        returnSafePreviewBtn.hidden = true;
+      function updatePreviewSecurityToggle(removedCount, hasTrustedMermaidFeatures) {
+        const contentWasFiltered = removedCount > 0 || hasTrustedMermaidFeatures;
+        previewSecurityToggle.hidden = !contentWasFiltered;
+        previewSecurityToggle.dataset.filterReason = removedCount
+          ? `Removed ${removedCount} unsafe HTML item${removedCount === 1 ? "" : "s"}.`
+          : "The safe preview disables Mermaid HTML and click features.";
       }
 
       function showSafePreview() {
         sandboxPreview.hidden = true;
         sandboxPreview.removeAttribute("srcdoc");
         markdownContent.style.display = "block";
-        viewTrustedPreviewBtn.hidden = false;
-        returnSafePreviewBtn.hidden = true;
+        if (!previewSecurityToggle.hidden) {
+          previewSecurityToggle.textContent = "Original";
+          previewSecurityToggle.title = `${previewSecurityToggle.dataset.filterReason} View the original document in an isolated sandbox.`;
+        }
       }
 
       function isMarkdownFile(file) {
@@ -1047,7 +1029,7 @@
           currentMarkdownPath = normalizePath(relativePath);
           fileName.textContent = filename;
           markdownContent.innerHTML = html;
-          updateContentSafetyNotice(removed.length, hasTrustedMermaidFeatures);
+          updatePreviewSecurityToggle(removed.length, hasTrustedMermaidFeatures);
           showSafePreview();
           replaceLocalImagesForPreview();
           emptyState.style.display = "none";
@@ -1172,8 +1154,8 @@
         );
         markdownContent.style.display = "none";
         sandboxPreview.hidden = false;
-        viewTrustedPreviewBtn.hidden = true;
-        returnSafePreviewBtn.hidden = false;
+        previewSecurityToggle.textContent = "Safe";
+        previewSecurityToggle.title = "Return to the sanitized preview.";
       }
 
       function readAsDataUrl(file) {
@@ -1222,8 +1204,10 @@
       }
 
       function setupContentSafetyHandlers() {
-        viewTrustedPreviewBtn.addEventListener("click", showTrustedPreview);
-        returnSafePreviewBtn.addEventListener("click", showSafePreview);
+        previewSecurityToggle.addEventListener("click", () => {
+          if (sandboxPreview.hidden) showTrustedPreview();
+          else showSafePreview();
+        });
       }
 
       // Left File Sidebar functions:

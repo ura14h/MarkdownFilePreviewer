@@ -51,7 +51,7 @@ Images referenced with relative paths, such as `images/diagram.png` or `../asset
 
 ### Content Safety
 
-Markdown is sanitized before it is added to the normal preview, and Mermaid runs in `strict` security mode there. If this changes the document, a notice explains why. Choose **View original in sandbox** only for content you trust and need to inspect with HTML labels or click actions; that view is isolated from the previewer application. Downloads and printed output always use the safe preview.
+Markdown is sanitized before it is added to the normal preview, and Mermaid runs in `strict` security mode there. When this changes the document, an **Original** toggle appears next to the filename. Choose it only for content you trust and need to inspect with HTML labels or click actions; that view is isolated from the previewer application. Downloads and printed output always use the safe preview.
 
 ### URL Loading
 
