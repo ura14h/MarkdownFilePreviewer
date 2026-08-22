@@ -741,8 +741,14 @@
         return mermaidBlocks.some((block) => /<\/?[a-z][^>]*>|^\s*click\s+/im.test(block));
       }
 
-      function updatePreviewSecurityToggle(removedCount, hasTrustedMermaidFeatures) {
-        const contentWasFiltered = removedCount > 0 || hasTrustedMermaidFeatures;
+      function hasRawHtmlOutsideCodeBlocks(markdown) {
+        const markdownWithoutCodeBlocks = markdown.replace(/```[\s\S]*?```/g, "");
+        return /<\/?[a-z][^>]*>/i.test(markdownWithoutCodeBlocks)
+          || /\]\(\s*(?:javascript:|vbscript:|data:text\/html)/i.test(markdownWithoutCodeBlocks);
+      }
+
+      function updatePreviewSecurityToggle(removedCount, hasRawHtml, hasTrustedMermaidFeatures) {
+        const contentWasFiltered = (removedCount > 0 && hasRawHtml) || hasTrustedMermaidFeatures;
         previewSecurityToggle.hidden = !contentWasFiltered;
         previewSecurityToggle.dataset.filterReason = removedCount
           ? `Removed ${removedCount} unsafe HTML item${removedCount === 1 ? "" : "s"}.`
@@ -1023,13 +1029,14 @@
           currentRecentFileId = recentFileId;
 
           const { html, removed } = sanitizeMarkdownHtml(marked.parse(content));
+          const hasRawHtml = hasRawHtmlOutsideCodeBlocks(content);
           const hasTrustedMermaidFeatures = usesTrustedMermaidFeatures(content);
           currentFileName = filename;
           currentFileContent = content;
           currentMarkdownPath = normalizePath(relativePath);
           fileName.textContent = filename;
           markdownContent.innerHTML = html;
-          updatePreviewSecurityToggle(removed.length, hasTrustedMermaidFeatures);
+          updatePreviewSecurityToggle(removed.length, hasRawHtml, hasTrustedMermaidFeatures);
           showSafePreview();
           replaceLocalImagesForPreview();
           emptyState.style.display = "none";
