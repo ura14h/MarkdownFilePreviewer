@@ -155,6 +155,72 @@
         display: none;
       }
 
+      .safe-mode-dialog {
+        border: 0;
+        border-radius: 8px;
+        box-shadow: 0 8px 32px rgba(31, 35, 40, 0.24);
+        color: #24292f;
+        max-width: 440px;
+        padding: 0;
+        width: calc(100% - 32px);
+      }
+
+      .safe-mode-dialog::backdrop {
+        background: rgba(31, 35, 40, 0.45);
+      }
+
+      .safe-mode-dialog form {
+        padding: 20px;
+      }
+
+      .safe-mode-dialog h2 {
+        font-size: 18px;
+        line-height: 1.25;
+        margin-bottom: 12px;
+      }
+
+      .safe-mode-dialog p {
+        color: #57606a;
+        font-size: 14px;
+        margin-bottom: 12px;
+      }
+
+      .safe-mode-dialog p:last-of-type {
+        margin-bottom: 0;
+      }
+
+      .safe-mode-dialog-actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        margin-top: 20px;
+      }
+
+      .safe-mode-dialog-button {
+        background: #f6f8fa;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        color: #24292f;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        padding: 7px 12px;
+      }
+
+      .safe-mode-dialog-button:hover {
+        background: #f3f4f6;
+      }
+
+      .safe-mode-dialog-button-primary {
+        background: #0969da;
+        border-color: #0969da;
+        color: #ffffff;
+      }
+
+      .safe-mode-dialog-button-primary:hover {
+        background: #0860ca;
+      }
+
       .sandbox-preview {
         border: 0;
         display: block;
@@ -646,6 +712,29 @@
       </div>
     </div>
 
+    <dialog
+      class="safe-mode-dialog"
+      id="safeModeDialog"
+      aria-labelledby="safeModeDialogTitle"
+      aria-describedby="safeModeDialogDescription"
+    >
+      <form method="dialog">
+        <h2 id="safeModeDialogTitle">Turn off Safe mode?</h2>
+        <p id="safeModeDialogDescription">
+          The original document may contain HTML or Mermaid actions that can run in the preview. It will be opened in an isolated sandbox.
+        </p>
+        <p>Downloads and printed output will remain in Safe mode.</p>
+        <div class="safe-mode-dialog-actions">
+          <button class="safe-mode-dialog-button" value="original">View original</button>
+          <button
+            class="safe-mode-dialog-button safe-mode-dialog-button-primary"
+            value="safe"
+            autofocus
+          >Keep Safe mode</button>
+        </div>
+      </form>
+    </dialog>
+
     <script>
       // Global state and element references:
 
@@ -666,6 +755,7 @@
       const printBtn = document.getElementById("printBtn");
       const safeModeControl = document.getElementById("safeModeControl");
       const safeModeCheckbox = document.getElementById("safeModeCheckbox");
+      const safeModeDialog = document.getElementById("safeModeDialog");
       const sandboxPreview = document.getElementById("sandboxPreview");
 
       // Left File Sidebar elements
@@ -1241,10 +1331,24 @@
             return;
           }
 
-          const shouldShowOriginal = window.confirm(
-            "Safe mode disables HTML and Mermaid actions that may be unsafe. View the original document in an isolated sandbox?",
-          );
-          if (shouldShowOriginal) showTrustedPreview();
+          safeModeCheckbox.checked = true;
+          safeModeDialog.returnValue = "safe";
+          safeModeDialog.showModal();
+        });
+
+        safeModeDialog.addEventListener("cancel", () => {
+          safeModeDialog.returnValue = "safe";
+        });
+
+        safeModeDialog.addEventListener("keydown", (event) => {
+          if (event.key !== "Escape") return;
+          event.preventDefault();
+          safeModeDialog.returnValue = "safe";
+          safeModeDialog.close();
+        });
+
+        safeModeDialog.addEventListener("close", () => {
+          if (safeModeDialog.returnValue === "original") showTrustedPreview();
           else showSafePreview();
         });
       }

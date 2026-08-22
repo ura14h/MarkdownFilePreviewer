@@ -55,7 +55,7 @@ Markdown opens in **Safe mode** by default. Unsafe HTML and Mermaid links or cli
 
 Headings and file names shown in the sidebars are always treated as plain text.
 
-If a document needs HTML formatting or Mermaid interactions, a **Safe mode** checkbox appears in the document controls. Turn it off only for content you trust. After a warning, the original content is shown in an isolated preview.
+If a document needs HTML formatting or Mermaid interactions, a **Safe mode** checkbox appears in the document controls. Turn it off only for content you trust. After confirmation, the original content is shown in an isolated preview.
 
 Downloaded HTML files and printed documents always use the safe preview.
 
