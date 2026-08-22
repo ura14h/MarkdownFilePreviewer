@@ -6,7 +6,7 @@
     <title>Markdown Previewer</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.12.0/mermaid.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.11/purify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.12/purify.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
     <link
@@ -153,6 +153,73 @@
 
       .safe-mode-control[hidden] {
         display: none;
+      }
+
+      .safe-mode-dialog {
+        border: 0;
+        border-radius: 8px;
+        box-shadow: 0 8px 32px rgba(31, 35, 40, 0.24);
+        color: #24292f;
+        margin: auto;
+        max-width: 440px;
+        padding: 0;
+        width: calc(100% - 32px);
+      }
+
+      .safe-mode-dialog::backdrop {
+        background: rgba(31, 35, 40, 0.45);
+      }
+
+      .safe-mode-dialog form {
+        padding: 20px;
+      }
+
+      .safe-mode-dialog h2 {
+        font-size: 18px;
+        line-height: 1.25;
+        margin-bottom: 12px;
+      }
+
+      .safe-mode-dialog p {
+        color: #57606a;
+        font-size: 14px;
+        margin-bottom: 12px;
+      }
+
+      .safe-mode-dialog p:last-of-type {
+        margin-bottom: 0;
+      }
+
+      .safe-mode-dialog-actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        margin-top: 20px;
+      }
+
+      .safe-mode-dialog-button {
+        background: #f6f8fa;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        color: #24292f;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        padding: 7px 12px;
+      }
+
+      .safe-mode-dialog-button:hover {
+        background: #f3f4f6;
+      }
+
+      .safe-mode-dialog-button-primary {
+        background: #0969da;
+        border-color: #0969da;
+        color: #ffffff;
+      }
+
+      .safe-mode-dialog-button-primary:hover {
+        background: #0860ca;
       }
 
       .sandbox-preview {
@@ -646,6 +713,29 @@
       </div>
     </div>
 
+    <dialog
+      class="safe-mode-dialog"
+      id="safeModeDialog"
+      aria-labelledby="safeModeDialogTitle"
+      aria-describedby="safeModeDialogDescription"
+    >
+      <form method="dialog">
+        <h2 id="safeModeDialogTitle">Turn off Safe mode?</h2>
+        <p id="safeModeDialogDescription">
+          The original document may contain HTML or Mermaid actions that can run in the preview. It will be opened in an isolated sandbox.
+        </p>
+        <p>Downloads and printed output will remain in Safe mode.</p>
+        <div class="safe-mode-dialog-actions">
+          <button class="safe-mode-dialog-button" value="original">View original</button>
+          <button
+            class="safe-mode-dialog-button safe-mode-dialog-button-primary"
+            value="safe"
+            autofocus
+          >Keep Safe mode</button>
+        </div>
+      </form>
+    </dialog>
+
     <script>
       // Global state and element references:
 
@@ -666,6 +756,7 @@
       const printBtn = document.getElementById("printBtn");
       const safeModeControl = document.getElementById("safeModeControl");
       const safeModeCheckbox = document.getElementById("safeModeCheckbox");
+      const safeModeDialog = document.getElementById("safeModeDialog");
       const sandboxPreview = document.getElementById("sandboxPreview");
 
       // Left File Sidebar elements
@@ -1241,10 +1332,24 @@
             return;
           }
 
-          const shouldShowOriginal = window.confirm(
-            "Safe mode disables HTML and Mermaid actions that may be unsafe. View the original document in an isolated sandbox?",
-          );
-          if (shouldShowOriginal) showTrustedPreview();
+          safeModeCheckbox.checked = true;
+          safeModeDialog.returnValue = "safe";
+          safeModeDialog.showModal();
+        });
+
+        safeModeDialog.addEventListener("cancel", () => {
+          safeModeDialog.returnValue = "safe";
+        });
+
+        safeModeDialog.addEventListener("keydown", (event) => {
+          if (event.key !== "Escape") return;
+          event.preventDefault();
+          safeModeDialog.returnValue = "safe";
+          safeModeDialog.close();
+        });
+
+        safeModeDialog.addEventListener("close", () => {
+          if (safeModeDialog.returnValue === "original") showTrustedPreview();
           else showSafePreview();
         });
       }
@@ -1328,38 +1433,67 @@
       }
 
       function updateRecentFilesDisplay() {
+        recentFiles.replaceChildren();
+
         if (recentFilesList.length === 0) {
-          recentFiles.innerHTML = `
-                    <div class="empty-recent">
-                        <h4>No recent files</h4>
-                        <p>Files you open will appear here</p>
-                    </div>
-                `;
+          const emptyState = document.createElement("div");
+          emptyState.className = "empty-recent";
+
+          const heading = document.createElement("h4");
+          heading.textContent = "No recent files";
+
+          const message = document.createElement("p");
+          message.textContent = "Files you open will appear here";
+
+          emptyState.append(heading, message);
+          recentFiles.append(emptyState);
           clearAllBtn.style.display = "none";
           return;
         }
 
-        const filesHtml = recentFilesList
-          .map(
-            (file, index) => `
-                <div class="recent-file-item ${file.id === currentRecentFileId ? "active" : ""}"
-                     data-index="${index}">
-                    <svg class="file-icon ${file.isFolder ? "folder-icon" : "document-icon"}" viewBox="0 0 16 16" aria-hidden="true">
-                        ${file.isFolder
-                          ? '<path d="M1.75 2A1.75 1.75 0 0 0 0 3.75v8.5C0 13.216.784 14 1.75 14h12.5A1.75 1.75 0 0 0 16 12.25V5.75A1.75 1.75 0 0 0 14.25 4H8.5L7 2.5a1.75 1.75 0 0 0-1.237-.5H1.75Zm0 1.5h4.013a.25.25 0 0 1 .177.073L7.5 5.134a.75.75 0 0 0 .53.22h6.22a.25.25 0 0 1 .25.25v6.646a.25.25 0 0 1-.25.25H1.75a.25.25 0 0 1-.25-.25v-8.5a.25.25 0 0 1 .25-.25Z"/>'
-                          : '<path d="M2 1.75C2 .784 2.784 0 3.75 0h6.586c.464 0 .909.184 1.237.513l2.914 2.914c.329.328.513.773.513 1.237v9.586A1.75 1.75 0 0 1 13.25 16h-9.5A1.75 1.75 0 0 1 2 14.25Zm1.75-.25a.25.25 0 0 0-.25.25v12.5c0 .138.112.25.25.25h9.5a.25.25 0 0 0 .25-.25V6h-2.75A1.75 1.75 0 0 1 9 4.25V1.5Zm6.75.062V4.25c0 .138.112.25.25.25h2.688l-.011-.013-2.914-2.914-.013-.011Z"/>'}
-                    </svg>
-                    <div class="recent-file-info">
-                        <div class="recent-file-name" title="${file.name}">${file.name}</div>
-                        <div class="recent-file-time">${file.displayTime}</div>
-                    </div>
-                    <button class="recent-file-remove" data-index="${index}" title="Remove from recent">×</button>
-                </div>
-            `,
-          )
-          .join("");
+        const fragment = document.createDocumentFragment();
+        const svgNamespace = "http://www.w3.org/2000/svg";
+        recentFilesList.forEach((file, index) => {
+          const item = document.createElement("div");
+          item.className = "recent-file-item";
+          if (file.id === currentRecentFileId) item.classList.add("active");
+          item.dataset.index = String(index);
 
-        recentFiles.innerHTML = filesHtml;
+          const icon = document.createElementNS(svgNamespace, "svg");
+          icon.setAttribute("class", `file-icon ${file.isFolder ? "folder-icon" : "document-icon"}`);
+          icon.setAttribute("viewBox", "0 0 16 16");
+          icon.setAttribute("aria-hidden", "true");
+
+          const path = document.createElementNS(svgNamespace, "path");
+          path.setAttribute("d", file.isFolder
+            ? "M1.75 2A1.75 1.75 0 0 0 0 3.75v8.5C0 13.216.784 14 1.75 14h12.5A1.75 1.75 0 0 0 16 12.25V5.75A1.75 1.75 0 0 0 14.25 4H8.5L7 2.5a1.75 1.75 0 0 0-1.237-.5H1.75Zm0 1.5h4.013a.25.25 0 0 1 .177.073L7.5 5.134a.75.75 0 0 0 .53.22h6.22a.25.25 0 0 1 .25.25v6.646a.25.25 0 0 1-.25.25H1.75a.25.25 0 0 1-.25-.25v-8.5a.25.25 0 0 1 .25-.25Z"
+            : "M2 1.75C2 .784 2.784 0 3.75 0h6.586c.464 0 .909.184 1.237.513l2.914 2.914c.329.328.513.773.513 1.237v9.586A1.75 1.75 0 0 1 13.25 16h-9.5A1.75 1.75 0 0 1 2 14.25Zm1.75-.25a.25.25 0 0 0-.25.25v12.5c0 .138.112.25.25.25h9.5a.25.25 0 0 0 .25-.25V6h-2.75A1.75 1.75 0 0 1 9 4.25V1.5Zm6.75.062V4.25c0 .138.112.25.25.25h2.688l-.011-.013-2.914-2.914-.013-.011Z");
+          icon.append(path);
+
+          const fileInfo = document.createElement("div");
+          fileInfo.className = "recent-file-info";
+
+          const name = document.createElement("div");
+          name.className = "recent-file-name";
+          name.title = file.name;
+          name.textContent = file.name;
+
+          const time = document.createElement("div");
+          time.className = "recent-file-time";
+          time.textContent = file.displayTime;
+
+          const removeButton = document.createElement("button");
+          removeButton.className = "recent-file-remove";
+          removeButton.dataset.index = String(index);
+          removeButton.title = "Remove from recent";
+          removeButton.textContent = "×";
+
+          fileInfo.append(name, time);
+          item.append(icon, fileInfo, removeButton);
+          fragment.append(item);
+        });
+
+        recentFiles.append(fragment);
         clearAllBtn.style.display = "block";
         setupRecentFileItemHandlers();
       }
@@ -1423,8 +1557,7 @@
         );
 
         if (headings.length === 0) {
-          tocList.innerHTML =
-            '<div class="toc-empty">No headings found in this file</div>';
+          setTocEmptyMessage("No headings found in this file");
           return;
         }
 
@@ -1432,16 +1565,28 @@
           ...headings.map((h) => parseInt(h.tagName[1])),
         );
 
-        tocList.innerHTML = headings
-          .map((h) => {
-            const level = parseInt(h.tagName[1]);
-            const indent = 16 + (level - minLevel) * 14;
-            const label = h.textContent.trim();
-            return `<div class="toc-item toc-h${level}" data-id="${h.id}" style="padding-left:${indent}px" title="${label}">
-                    <a class="toc-link" href="#${h.id}">${label}</a>
-                </div>`;
-          })
-          .join("");
+        const fragment = document.createDocumentFragment();
+        headings.forEach((heading) => {
+          const level = parseInt(heading.tagName[1]);
+          const indent = 16 + (level - minLevel) * 14;
+          const label = heading.textContent.trim();
+
+          const item = document.createElement("div");
+          item.className = `toc-item toc-h${level}`;
+          item.dataset.id = heading.id;
+          item.style.paddingLeft = `${indent}px`;
+          item.title = label;
+
+          const link = document.createElement("a");
+          link.className = "toc-link";
+          link.setAttribute("href", `#${heading.id}`);
+          link.textContent = label;
+
+          item.append(link);
+          fragment.append(item);
+        });
+
+        tocList.replaceChildren(fragment);
 
         setupTocItemHandlers();
         setupTocScrollSpy(headings);
@@ -1494,8 +1639,14 @@
           tocObserver.disconnect();
           tocObserver = null;
         }
-        tocList.innerHTML =
-          '<div class="toc-empty">Open a file to see its headings</div>';
+        setTocEmptyMessage("Open a file to see its headings");
+      }
+
+      function setTocEmptyMessage(message) {
+        const emptyState = document.createElement("div");
+        emptyState.className = "toc-empty";
+        emptyState.textContent = message;
+        tocList.replaceChildren(emptyState);
       }
 
       function initializeApp() {
