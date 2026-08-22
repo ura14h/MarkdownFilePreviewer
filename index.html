@@ -137,19 +137,18 @@
         margin-bottom: 16px;
       }
 
-      .preview-security-toggle {
-        background: #fff8c5;
-        border: 1px solid #d4a72c;
-        border-radius: 999px;
+      .safe-mode-control {
+        align-items: center;
         color: #4d2d00;
         cursor: pointer;
+        display: inline-flex;
         font-size: 13px;
-        margin-left: 8px;
-        padding: 3px 9px;
+        gap: 5px;
+        white-space: nowrap;
       }
 
-      .preview-security-toggle:hover {
-        background: #fff1a8;
+      .safe-mode-control input {
+        accent-color: #0969da;
       }
 
       .sandbox-preview {
@@ -608,13 +607,11 @@
             />
           </svg>
           <span id="fileName">&nbsp;</span>
-          <button
-            class="preview-security-toggle"
-            id="previewSecurityToggle"
-            title="View the original document in an isolated sandbox"
-            hidden
-          >Original</button>
           <div class="document-actions" id="documentActions" style="display: none">
+            <label class="safe-mode-control" id="safeModeControl" hidden title="">
+              <input type="checkbox" id="safeModeCheckbox" checked>
+              Safe mode
+            </label>
             <button class="document-action-btn" id="downloadHtmlBtn" disabled>Download HTML</button>
             <button class="document-action-btn" id="printBtn" disabled>Print / Save PDF</button>
           </div>
@@ -659,7 +656,8 @@
       const documentActions = document.getElementById("documentActions");
       const downloadHtmlBtn = document.getElementById("downloadHtmlBtn");
       const printBtn = document.getElementById("printBtn");
-      const previewSecurityToggle = document.getElementById("previewSecurityToggle");
+      const safeModeControl = document.getElementById("safeModeControl");
+      const safeModeCheckbox = document.getElementById("safeModeCheckbox");
       const sandboxPreview = document.getElementById("sandboxPreview");
 
       // Left File Sidebar elements
@@ -749,19 +747,20 @@
 
       function updatePreviewSecurityToggle(removedCount, hasRawHtml, hasTrustedMermaidFeatures) {
         const contentWasFiltered = (removedCount > 0 && hasRawHtml) || hasTrustedMermaidFeatures;
-        previewSecurityToggle.hidden = !contentWasFiltered;
-        previewSecurityToggle.dataset.filterReason = removedCount
+        safeModeControl.hidden = !contentWasFiltered;
+        safeModeControl.dataset.filterReason = removedCount
           ? `Removed ${removedCount} unsafe HTML item${removedCount === 1 ? "" : "s"}.`
           : "The safe preview disables Mermaid HTML and click features.";
+        safeModeCheckbox.checked = true;
       }
 
       function showSafePreview() {
         sandboxPreview.hidden = true;
         sandboxPreview.removeAttribute("srcdoc");
         markdownContent.style.display = "block";
-        if (!previewSecurityToggle.hidden) {
-          previewSecurityToggle.textContent = "Original";
-          previewSecurityToggle.title = `${previewSecurityToggle.dataset.filterReason} View the original document in an isolated sandbox.`;
+        if (!safeModeControl.hidden) {
+          safeModeCheckbox.checked = true;
+          safeModeControl.title = `${safeModeControl.dataset.filterReason} Disable Safe mode to view the original document in an isolated sandbox.`;
         }
       }
 
@@ -1161,8 +1160,8 @@
         );
         markdownContent.style.display = "none";
         sandboxPreview.hidden = false;
-        previewSecurityToggle.textContent = "Safe";
-        previewSecurityToggle.title = "Return to the sanitized preview.";
+        safeModeCheckbox.checked = false;
+        safeModeControl.title = "Safe mode is disabled. The original document is displayed in an isolated sandbox.";
       }
 
       function readAsDataUrl(file) {
@@ -1211,8 +1210,16 @@
       }
 
       function setupContentSafetyHandlers() {
-        previewSecurityToggle.addEventListener("click", () => {
-          if (sandboxPreview.hidden) showTrustedPreview();
+        safeModeCheckbox.addEventListener("change", () => {
+          if (safeModeCheckbox.checked) {
+            showSafePreview();
+            return;
+          }
+
+          const shouldShowOriginal = window.confirm(
+            "Safe mode disables HTML and Mermaid actions that may be unsafe. View the original document in an isolated sandbox?",
+          );
+          if (shouldShowOriginal) showTrustedPreview();
           else showSafePreview();
         });
       }
