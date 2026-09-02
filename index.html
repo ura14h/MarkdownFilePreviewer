@@ -1232,22 +1232,25 @@
         return safeSvg;
       }
 
-      function renderMermaidDiagrams() {
-        const mermaidNodes = markdownContent.querySelectorAll(".mermaid");
-        if (mermaidNodes.length === 0) return;
+      // Diagrams are rendered one at a time so that a diagram that fails to parse
+      // only replaces itself with an error, instead of every diagram in the
+      // document reporting the same failure.
+      async function renderMermaidDiagrams() {
+        const mermaidNodes = [...markdownContent.querySelectorAll(".mermaid")];
 
-        return mermaid.run({ nodes: mermaidNodes }).then(() => {
-          markdownContent.querySelectorAll(".mermaid svg").forEach((svg) => {
-            svg.replaceWith(sanitizeDiagramSvg(svg));
-          });
-        }).catch((err) => {
-          mermaidNodes.forEach((node) => {
+        for (const node of mermaidNodes) {
+          try {
+            await mermaid.run({ nodes: [node] });
+            node.querySelectorAll("svg").forEach((svg) => {
+              svg.replaceWith(sanitizeDiagramSvg(svg));
+            });
+          } catch (error) {
             const errorDiv = document.createElement("div");
             errorDiv.className = "mermaid-error";
-            errorDiv.textContent = `Mermaid parse error: ${err.message}`;
+            errorDiv.textContent = `Mermaid parse error: ${error.message}`;
             node.closest(".mermaid-container").replaceChildren(errorDiv);
-          });
-        });
+          }
+        }
       }
 
       function buildSandboxPreviewDocument(markdown, title) {
