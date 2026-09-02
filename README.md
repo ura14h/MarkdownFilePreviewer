@@ -11,7 +11,7 @@ A simple, lightweight web-based markdown previewer that renders `.md`, `.markdow
 - **GitHub-Style Rendering**: Clean, familiar markdown styling
 - **Syntax Highlighting**: Code blocks with language-specific highlighting
 - **Mermaid Diagram Rendering**: Diagrams using code blocks with mermaid syntax
-- **Safe Preview by Default**: Removes unsafe HTML and disables Mermaid HTML/click features
+- **Safe Preview by Default**: Removes unsafe HTML and disables Mermaid links and click actions
 - **Sandboxed Original Preview**: Review content that requires those features in an isolated iframe
 - **Standalone HTML Export**: Download the current preview as a self-contained HTML document
 - **Print / Save PDF**: Open the browser print dialog with previewer controls hidden

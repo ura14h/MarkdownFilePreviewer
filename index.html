@@ -830,26 +830,26 @@
           USE_PROFILES: { html: true },
           ALLOW_UNKNOWN_PROTOCOLS: false,
         });
-        return { html: sanitized, removed: [...DOMPurify.removed] };
+        const removed = [...DOMPurify.removed].filter(
+          (entry) => !(entry.element && entry.element.nodeType === Node.COMMENT_NODE),
+        );
+        return { html: sanitized, removed };
       }
 
+      // Mermaid renders label markup even in the safe preview, so tags such as
+      // <br> are not a reason to offer the original document. Only links and click
+      // actions are actually disabled there.
       function usesTrustedMermaidFeatures(markdown) {
         const mermaidBlocks = markdown.match(/```mermaid[\s\S]*?```/gi) || [];
-        return mermaidBlocks.some((block) => /<\/?[a-z][^>]*>|^\s*click\s+/im.test(block));
+        return mermaidBlocks.some((block) => /^\s*(?:click|link)\s/im.test(block) || /<a[\s>]/i.test(block));
       }
 
-      function hasRawHtmlOutsideCodeBlocks(markdown) {
-        const markdownWithoutCodeBlocks = markdown.replace(/```[\s\S]*?```/g, "");
-        return /<\/?[a-z][^>]*>/i.test(markdownWithoutCodeBlocks)
-          || /\]\(\s*(?:javascript:|vbscript:|data:text\/html)/i.test(markdownWithoutCodeBlocks);
-      }
-
-      function updatePreviewSecurityToggle(removedCount, hasRawHtml, hasTrustedMermaidFeatures) {
-        const contentWasFiltered = (removedCount > 0 && hasRawHtml) || hasTrustedMermaidFeatures;
+      function updatePreviewSecurityToggle(removedCount, hasTrustedMermaidFeatures) {
+        const contentWasFiltered = removedCount > 0 || hasTrustedMermaidFeatures;
         safeModeControl.hidden = !contentWasFiltered;
         safeModeControl.dataset.filterReason = removedCount
           ? `Removed ${removedCount} unsafe HTML item${removedCount === 1 ? "" : "s"}.`
-          : "The safe preview disables Mermaid HTML and click features.";
+          : "The safe preview disables Mermaid links and click actions.";
         safeModeCheckbox.checked = true;
       }
 
@@ -1097,9 +1097,19 @@
 
       function configureHeadingRenderer() {
         renderer.heading = function (text, level) {
-          const id = generateHeadingId(text);
-          return `<h${level} id="${id}">${text}</h${level}>\n`;
+          return `<h${level}>${text}</h${level}>\n`;
         };
+      }
+
+      // DOMPurify drops id values that would clobber DOM properties, so slugs such
+      // as "click", "title" or "images" never reached the document. Assigning the
+      // ids after sanitization keeps the table of contents links working and keeps
+      // them out of the removed-item count.
+      function assignHeadingIds() {
+        resetHeadingCounters();
+        markdownContent.querySelectorAll("h1, h2, h3, h4, h5, h6").forEach((heading) => {
+          heading.id = generateHeadingId(heading.textContent);
+        });
       }
 
       function generateHeadingId(text) {
@@ -1123,19 +1133,18 @@
       async function renderMarkdown(content, filename, relativePath = filename, recentFileId = null) {
         try {
           clearError();
-          resetHeadingCounters();
           revokePreviewObjectUrls();
           currentRecentFileId = recentFileId;
 
           const { html, removed } = sanitizeMarkdownHtml(marked.parse(content));
-          const hasRawHtml = hasRawHtmlOutsideCodeBlocks(content);
           const hasTrustedMermaidFeatures = usesTrustedMermaidFeatures(content);
           currentFileName = filename;
           currentFileContent = content;
           currentMarkdownPath = normalizePath(relativePath);
           fileName.textContent = filename;
           markdownContent.innerHTML = html;
-          updatePreviewSecurityToggle(removed.length, hasRawHtml, hasTrustedMermaidFeatures);
+          assignHeadingIds();
+          updatePreviewSecurityToggle(removed.length, hasTrustedMermaidFeatures);
           showSafePreview();
           replaceLocalImagesForPreview();
           emptyState.style.display = "none";
