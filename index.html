@@ -1185,23 +1185,51 @@
         });
       }
 
+      // Mermaid draws node labels as HTML inside <foreignObject>. DOMPurify drops
+      // HTML nested in SVG whether or not foreignObject itself is allowed, so the
+      // label markup is sanitized on its own and restored after the surrounding
+      // SVG has been sanitized.
+      function sanitizeDiagramSvg(svg) {
+        const svgConfig = {
+          USE_PROFILES: { html: true, svg: true, svgFilters: true },
+          ADD_TAGS: ["foreignObject"],
+          ALLOW_UNKNOWN_PROTOCOLS: false,
+        };
+        const htmlConfig = { USE_PROFILES: { html: true }, ALLOW_UNKNOWN_PROTOCOLS: false };
+
+        const source = svg.cloneNode(true);
+        const labels = [];
+        source.querySelectorAll("foreignObject").forEach((foreignObject) => {
+          labels.push(DOMPurify.sanitize(foreignObject.innerHTML, htmlConfig));
+          foreignObject.replaceChildren();
+        });
+
+        const template = document.createElement("template");
+        template.innerHTML = DOMPurify.sanitize(source.outerHTML, svgConfig);
+        const safeSvg = template.content.firstElementChild;
+
+        const foreignObjects = safeSvg.querySelectorAll("foreignObject");
+        if (foreignObjects.length === labels.length) {
+          foreignObjects.forEach((foreignObject, index) => {
+            const label = document.createElement("template");
+            label.innerHTML = labels[index];
+            foreignObject.append(...label.content.childNodes);
+          });
+        }
+
+        safeSvg.querySelectorAll("a").forEach((link) => {
+          link.replaceWith(...link.childNodes);
+        });
+        return safeSvg;
+      }
+
       function renderMermaidDiagrams() {
         const mermaidNodes = markdownContent.querySelectorAll(".mermaid");
         if (mermaidNodes.length === 0) return;
 
         return mermaid.run({ nodes: mermaidNodes }).then(() => {
           markdownContent.querySelectorAll(".mermaid svg").forEach((svg) => {
-            const sanitizedSvg = DOMPurify.sanitize(svg.outerHTML, {
-              USE_PROFILES: { html: true, svg: true, svgFilters: true },
-              ALLOW_UNKNOWN_PROTOCOLS: false,
-            });
-            const template = document.createElement("template");
-            template.innerHTML = sanitizedSvg;
-            const safeSvg = template.content.firstElementChild;
-            safeSvg.querySelectorAll("a").forEach((link) => {
-              link.replaceWith(...link.childNodes);
-            });
-            svg.replaceWith(safeSvg);
+            svg.replaceWith(sanitizeDiagramSvg(svg));
           });
         }).catch((err) => {
           mermaidNodes.forEach((node) => {
