@@ -35,30 +35,71 @@
         padding: 20px;
       }
 
-      /* File input and drag-and-drop area styles */
+      /* Drag-and-drop overlay styles */
 
-      .drop-zone {
-        border: 2px dashed #d0d7de;
-        border-radius: 6px;
-        color: #656d76;
+      .drop-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 1002;
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 12px;
-        margin-bottom: 20px;
-        padding: 10px 16px;
-        transition: all 0.2s;
+        justify-content: center;
+        background: rgba(246, 248, 250, 0.88);
       }
+
+      .drop-overlay[hidden] {
+        display: none;
+      }
+
+      .drop-overlay-message {
+        background: #ffffff;
+        border: 2px dashed #0969da;
+        border-radius: 8px;
+        color: #0969da;
+        padding: 24px 32px;
+        pointer-events: none;
+        text-align: center;
+      }
+
+      .drop-overlay-message small {
+        color: #656d76;
+        display: block;
+        font-size: 12px;
+        margin-top: 4px;
+      }
+
+      /* Preview header action styles */
 
       .document-actions {
         margin-left: auto;
         display: flex;
+        align-items: center;
         gap: 8px;
+      }
+
+      .document-actions-group {
+        display: flex;
+        align-items: center;
+        /* Stretching keeps every group the same height, so the separator rules
+           between them match no matter which controls a group holds. */
+        align-self: stretch;
+        gap: 8px;
+      }
+
+      .document-actions-group[hidden] {
+        display: none;
+      }
+
+      /* Separate the groups with a rule. The general sibling combinator skips
+         groups that are currently hidden, so the leading group never gets one. */
+      .document-actions-group:not([hidden]) ~ .document-actions-group:not([hidden]) {
+        border-left: 1px solid #d0d7de;
+        padding-left: 8px;
       }
 
       .document-action-btn {
         background: #ffffff;
+        white-space: nowrap;
         border: 1px solid #d0d7de;
         border-radius: 5px;
         color: #24292f;
@@ -72,24 +113,22 @@
         background: #f3f4f6;
       }
 
-      .drop-zone-copy small {
-        display: block;
-        font-size: 12px;
-      }
-
-      .drop-zone:hover,
-      .drop-zone.dragover {
-        border-color: #0969da;
-        background: #f6f8fa;
-      }
-
       /* Preview area styles */
 
       .preview-container {
         background: white;
         border: 1px solid #d0d7de;
         border-radius: 6px;
-        min-height: 500px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* With nothing loaded the preview reaches the bottom of the window, so the
+         gap below it matches the page padding above. 40px is that padding, top
+         and bottom. Once a document is open the preview follows its content. */
+      .preview-container.is-empty {
+        min-height: calc(100vh - 40px);
+        min-height: calc(100dvh - 40px);
       }
 
       .preview-header {
@@ -97,28 +136,45 @@
         border-bottom: 1px solid #d0d7de;
         border-radius: 6px 6px 0 0;
         min-height: 42px;
-        padding: 8px 16px;
+        /* The right inset matches the vertical one so the trailing button sits
+           evenly inside the header; the label keeps a wider inset on the left. */
+        padding: 8px 8px 8px 16px;
         font-size: 14px;
         font-weight: 600;
         display: flex;
         align-items: center;
+        flex-wrap: wrap;
         gap: 8px;
       }
 
+      .preview-header-name {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
       .file-icon {
+        flex: none;
         width: 16px;
         height: 16px;
         fill: #656d76;
       }
 
       .preview-content {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
         padding: 32px;
       }
 
+      /* Centred in whatever height the container takes, rather than sitting near
+         its top with a large blank area below. */
       .empty-state {
-        text-align: center;
         color: #656d76;
-        padding: 60px 20px;
+        margin: auto;
+        padding: 20px;
+        text-align: center;
       }
 
       .empty-state h3 {
@@ -225,6 +281,7 @@
       .sandbox-preview {
         border: 0;
         display: block;
+        flex: none;
         height: 720px;
         width: 100%;
       }
@@ -583,15 +640,15 @@
       .markdown-body pre { background: #f6f8fa; padding: 16px; border-radius: 6px; overflow-x: auto; margin-bottom: 16px; border: 1px solid #d0d7de; } .markdown-body pre code { background: none; padding: 0; }
       .markdown-body table { border-collapse: collapse; margin-bottom: 16px; width: 100%; } .markdown-body table th, .markdown-body table td { padding: 6px 13px; border: 1px solid #d0d7de; } .markdown-body table th { font-weight: 600; background: #f6f8fa; }
       .markdown-body a { color: #0969da; text-decoration: none; } .markdown-body a:hover { text-decoration: underline; } .markdown-body hr { height: 4px; padding: 0; margin: 24px 0; background: #d0d7de; border: 0; }
-      .markdown-body img { max-width: 100%; height: auto; margin: 16px 0; } .mermaid-container { padding: 16px; margin-bottom: 16px; text-align: center; overflow-x: auto; } .mermaid-container svg { max-width: 100%; height: auto; }
-      .mermaid-error { background: #fff8f0; border: 1px solid #d1242f; color: #d1242f; padding: 12px 16px; border-radius: 6px; margin-bottom: 16px; font: 13px ui-monospace, monospace; }
+      .markdown-body img { max-width: 100%; height: auto; margin: 16px 0; } .mermaid-container { padding: 16px; margin-bottom: 16px; text-align: center; overflow-x: auto; page-break-inside: avoid; break-inside: avoid; } .mermaid-container svg { max-width: 100%; height: auto; }
+      .mermaid-error { background: #fff8f0; border: 1px solid #d1242f; color: #d1242f; padding: 12px 16px; border-radius: 6px; margin-bottom: 16px; font: 13px ui-monospace, monospace; page-break-inside: avoid; break-inside: avoid; }
       .markdown-body > :first-child { margin-top: 0; } .markdown-body > :last-child { margin-bottom: 0; } .standalone-document { padding: 24px; }
       .token.comment, .token.prolog, .token.doctype, .token.cdata { color: slategray; } .token.punctuation { color: #999; } .token.property, .token.tag, .token.boolean, .token.number, .token.constant, .token.symbol, .token.deleted { color: #905; } .token.selector, .token.attr-name, .token.string, .token.char, .token.builtin, .token.inserted { color: #690; } .token.operator, .token.entity, .token.url, .language-css .token.string, .style .token.string { color: #9a6e3a; } .token.atrule, .token.attr-value, .token.keyword { color: #07a; } .token.function, .token.class-name { color: #dd4a68; } .token.regex, .token.important, .token.variable { color: #e90; } .token.important, .token.bold { font-weight: bold; } .token.italic { font-style: italic; }
     </style>
     <style id="print-style">
       @media print {
         body { background: #fff; }
-        .left-file-sidebar-toggle, .right-toc-sidebar-toggle, .left-file-sidebar, .right-toc-sidebar, .drop-zone, .preview-header, .sandbox-preview { display: none !important; }
+        .left-file-sidebar-toggle, .right-toc-sidebar-toggle, .left-file-sidebar, .right-toc-sidebar, .drop-overlay, .preview-header, .sandbox-preview { display: none !important; }
         .container, .preview-container, .preview-content { max-width: none; margin: 0; padding: 0; border: 0; box-shadow: none; }
         .markdown-body { display: block !important; }
       }
@@ -659,42 +716,37 @@
 
     <div class="container">
 
-      <!-- File input and drag-and-drop area -->
-      <div class="drop-zone" id="dropZone">
-          <div class="drop-zone-copy">
-            <strong>Drop a markdown file or folder here</strong>
-            <small>Folders can include local images</small>
-          </div>
-          <div class="document-actions">
-          <input type="file" accept=".md,.markdown,.txt" id="fileInput" hidden />
-          <button class="document-action-btn" id="selectFileBtn">Select File</button>
-          <input type="file" id="folderInput" webkitdirectory multiple hidden />
-          <button class="document-action-btn" id="selectFolderBtn">Select Folder</button>
-          </div>
-        </div>
-
       <!-- Preview container -->
-      <div class="preview-container">
+      <div class="preview-container is-empty" id="previewContainer">
         <div class="preview-header">
           <svg class="file-icon" viewBox="0 0 16 16">
             <path
               d="M2 1.75C2 .784 2.784 0 3.75 0h6.586c.464 0 .909.184 1.237.513l2.914 2.914c.329.328.513.773.513 1.237v9.586A1.75 1.75 0 0 1 13.25 16h-9.5A1.75 1.75 0 0 1 2 14.25Zm1.75-.25a.25.25 0 0 0-.25.25v12.5c0 .138.112.25.25.25h9.5a.25.25 0 0 0 .25-.25V6h-2.75A1.75 1.75 0 0 1 9 4.25V1.5Zm6.75.062V4.25c0 .138.112.25.25.25h2.688l-.011-.013-2.914-2.914-.013-.011Z"
             />
           </svg>
-          <span id="fileName">&nbsp;</span>
-          <div class="document-actions" id="documentActions" style="display: none">
-            <label class="safe-mode-control" id="safeModeControl" hidden title="">
+          <span class="preview-header-name" id="fileName">&nbsp;</span>
+          <div class="document-actions">
+            <div class="document-actions-group">
+              <input type="file" accept=".md,.markdown,.txt" id="fileInput" hidden />
+              <button class="document-action-btn" id="selectFileBtn">Select File</button>
+              <input type="file" id="folderInput" webkitdirectory multiple hidden />
+              <button class="document-action-btn" id="selectFolderBtn">Select Folder</button>
+            </div>
+            <label class="document-actions-group safe-mode-control" id="safeModeControl" hidden title="">
               <input type="checkbox" id="safeModeCheckbox" checked>
               Safe mode
             </label>
-            <button class="document-action-btn" id="downloadHtmlBtn" disabled>Download HTML</button>
-            <button class="document-action-btn" id="printBtn" disabled>Print / Save PDF</button>
+            <div class="document-actions-group" id="documentActions" hidden>
+              <button class="document-action-btn" id="downloadHtmlBtn" disabled>Download HTML</button>
+              <button class="document-action-btn" id="printBtn" disabled>Print / Save PDF</button>
+            </div>
           </div>
         </div>
         <div class="preview-content">
           <div class="empty-state" id="emptyState">
             <h3>No file loaded</h3>
-            <p>Select a markdown file to see the preview here</p>
+            <p>Drop a markdown file or folder anywhere on this page, or use the buttons above</p>
+            <p><small>Folders can include local images</small></p>
           </div>
           <div
             class="markdown-body"
@@ -736,6 +788,14 @@
       </form>
     </dialog>
 
+    <!-- Drag-and-drop overlay: covers the whole page, including the sandbox iframe -->
+    <div class="drop-overlay" id="dropOverlay" hidden>
+      <div class="drop-overlay-message">
+        <strong>Drop to open</strong>
+        <small>A markdown file, or a folder that can include local images</small>
+      </div>
+    </div>
+
     <script>
       // Global state and element references:
 
@@ -744,11 +804,12 @@
       const selectFileBtn = document.getElementById("selectFileBtn");
       const folderInput = document.getElementById("folderInput");
       const selectFolderBtn = document.getElementById("selectFolderBtn");
-      const dropZone = document.getElementById("dropZone");
+      const dropOverlay = document.getElementById("dropOverlay");
 
       // Preview area elements
       const fileName = document.getElementById("fileName");
       const emptyState = document.getElementById("emptyState");
+      const previewContainer = document.getElementById("previewContainer");
       const previewContent = document.querySelector(".preview-content");
       const markdownContent = document.getElementById("markdownContent");
       const documentActions = document.getElementById("documentActions");
@@ -830,26 +891,26 @@
           USE_PROFILES: { html: true },
           ALLOW_UNKNOWN_PROTOCOLS: false,
         });
-        return { html: sanitized, removed: [...DOMPurify.removed] };
+        const removed = [...DOMPurify.removed].filter(
+          (entry) => !(entry.element && entry.element.nodeType === Node.COMMENT_NODE),
+        );
+        return { html: sanitized, removed };
       }
 
+      // Mermaid renders label markup even in the safe preview, so tags such as
+      // <br> are not a reason to offer the original document. Only links and click
+      // actions are actually disabled there.
       function usesTrustedMermaidFeatures(markdown) {
         const mermaidBlocks = markdown.match(/```mermaid[\s\S]*?```/gi) || [];
-        return mermaidBlocks.some((block) => /<\/?[a-z][^>]*>|^\s*click\s+/im.test(block));
+        return mermaidBlocks.some((block) => /^\s*(?:click|link)\s/im.test(block) || /<a[\s>]/i.test(block));
       }
 
-      function hasRawHtmlOutsideCodeBlocks(markdown) {
-        const markdownWithoutCodeBlocks = markdown.replace(/```[\s\S]*?```/g, "");
-        return /<\/?[a-z][^>]*>/i.test(markdownWithoutCodeBlocks)
-          || /\]\(\s*(?:javascript:|vbscript:|data:text\/html)/i.test(markdownWithoutCodeBlocks);
-      }
-
-      function updatePreviewSecurityToggle(removedCount, hasRawHtml, hasTrustedMermaidFeatures) {
-        const contentWasFiltered = (removedCount > 0 && hasRawHtml) || hasTrustedMermaidFeatures;
+      function updatePreviewSecurityToggle(removedCount, hasTrustedMermaidFeatures) {
+        const contentWasFiltered = removedCount > 0 || hasTrustedMermaidFeatures;
         safeModeControl.hidden = !contentWasFiltered;
         safeModeControl.dataset.filterReason = removedCount
           ? `Removed ${removedCount} unsafe HTML item${removedCount === 1 ? "" : "s"}.`
-          : "The safe preview disables Mermaid HTML and click features.";
+          : "The safe preview disables Mermaid links and click actions.";
         safeModeCheckbox.checked = true;
       }
 
@@ -962,22 +1023,63 @@
           e.target.value = "";
         });
 
-        dropZone.addEventListener("dragover", (e) => {
+        setupPageDropHandlers();
+      }
+
+      // Files can be dropped anywhere on the page. While a file drag is in
+      // progress an overlay covers the viewport so that the sandbox iframe,
+      // which would otherwise swallow the drop, never becomes the drop target.
+      function setupPageDropHandlers() {
+        let dragDepth = 0;
+        // Safety net: some browsers skip the final dragleave when a drag ends
+        // outside the window, which would leave the overlay stuck on screen.
+        let dragWatchdog = null;
+
+        const dragCarriesFiles = (e) =>
+          Boolean(e.dataTransfer) && Array.from(e.dataTransfer.types || []).includes("Files");
+
+        const hideDropOverlay = () => {
+          dragDepth = 0;
+          clearTimeout(dragWatchdog);
+          dragWatchdog = null;
+          dropOverlay.hidden = true;
+        };
+
+        const showDropOverlay = () => {
+          dropOverlay.hidden = false;
+          clearTimeout(dragWatchdog);
+          dragWatchdog = setTimeout(hideDropOverlay, 1000);
+        };
+
+        window.addEventListener("dragenter", (e) => {
+          if (safeModeDialog.open || !dragCarriesFiles(e)) return;
           e.preventDefault();
-          dropZone.classList.add("dragover");
+          dragDepth += 1;
+          showDropOverlay();
         });
 
-        dropZone.addEventListener("dragleave", (e) => {
+        window.addEventListener("dragover", (e) => {
+          if (safeModeDialog.open || !dragCarriesFiles(e)) return;
           e.preventDefault();
-          dropZone.classList.remove("dragover");
+          e.dataTransfer.dropEffect = "copy";
+          showDropOverlay();
         });
 
-        dropZone.addEventListener("drop", (e) => {
+        window.addEventListener("dragleave", () => {
+          if (dropOverlay.hidden) return;
+          dragDepth -= 1;
+          if (dragDepth <= 0) hideDropOverlay();
+        });
+
+        window.addEventListener("dragend", hideDropOverlay);
+
+        window.addEventListener("drop", (e) => {
+          if (!dragCarriesFiles(e)) return;
           e.preventDefault();
-          dropZone.classList.remove("dragover");
+          hideDropOverlay();
+          if (safeModeDialog.open) return;
           handleDrop(e.dataTransfer).catch((error) => showError("Error reading dropped item: " + error.message));
         });
-
       }
 
       function readAllDirectoryEntries(reader) {
@@ -1097,9 +1199,19 @@
 
       function configureHeadingRenderer() {
         renderer.heading = function (text, level) {
-          const id = generateHeadingId(text);
-          return `<h${level} id="${id}">${text}</h${level}>\n`;
+          return `<h${level}>${text}</h${level}>\n`;
         };
+      }
+
+      // DOMPurify drops id values that would clobber DOM properties, so slugs such
+      // as "click", "title" or "images" never reached the document. Assigning the
+      // ids after sanitization keeps the table of contents links working and keeps
+      // them out of the removed-item count.
+      function assignHeadingIds() {
+        resetHeadingCounters();
+        markdownContent.querySelectorAll("h1, h2, h3, h4, h5, h6").forEach((heading) => {
+          heading.id = generateHeadingId(heading.textContent);
+        });
       }
 
       function generateHeadingId(text) {
@@ -1123,22 +1235,22 @@
       async function renderMarkdown(content, filename, relativePath = filename, recentFileId = null) {
         try {
           clearError();
-          resetHeadingCounters();
           revokePreviewObjectUrls();
           currentRecentFileId = recentFileId;
 
           const { html, removed } = sanitizeMarkdownHtml(marked.parse(content));
-          const hasRawHtml = hasRawHtmlOutsideCodeBlocks(content);
           const hasTrustedMermaidFeatures = usesTrustedMermaidFeatures(content);
           currentFileName = filename;
           currentFileContent = content;
           currentMarkdownPath = normalizePath(relativePath);
           fileName.textContent = filename;
           markdownContent.innerHTML = html;
-          updatePreviewSecurityToggle(removed.length, hasRawHtml, hasTrustedMermaidFeatures);
+          assignHeadingIds();
+          updatePreviewSecurityToggle(removed.length, hasTrustedMermaidFeatures);
           showSafePreview();
           replaceLocalImagesForPreview();
           emptyState.style.display = "none";
+          previewContainer.classList.remove("is-empty");
           markdownContent.style.display = "block";
 
           Prism.highlightAllUnder(markdownContent);
@@ -1157,7 +1269,7 @@
           }
           downloadHtmlBtn.disabled = false;
           printBtn.disabled = false;
-          documentActions.style.display = "flex";
+          documentActions.hidden = false;
 
         } catch (error) {
           showError("Error rendering markdown: " + error.message);
@@ -1185,32 +1297,82 @@
         });
       }
 
-      function renderMermaidDiagrams() {
-        const mermaidNodes = markdownContent.querySelectorAll(".mermaid");
-        if (mermaidNodes.length === 0) return;
+      const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 
-        return mermaid.run({ nodes: mermaidNodes }).then(() => {
-          markdownContent.querySelectorAll(".mermaid svg").forEach((svg) => {
-            const sanitizedSvg = DOMPurify.sanitize(svg.outerHTML, {
-              USE_PROFILES: { html: true, svg: true, svgFilters: true },
-              ALLOW_UNKNOWN_PROTOCOLS: false,
-            });
-            const template = document.createElement("template");
-            template.innerHTML = sanitizedSvg;
-            const safeSvg = template.content.firstElementChild;
-            safeSvg.querySelectorAll("a").forEach((link) => {
-              link.replaceWith(...link.childNodes);
-            });
-            svg.replaceWith(safeSvg);
+      // Mermaid draws node labels as HTML inside <foreignObject>. DOMPurify drops
+      // HTML nested in SVG whether or not foreignObject itself is allowed, so the
+      // label markup is sanitized on its own and restored after the surrounding
+      // SVG has been sanitized.
+      function sanitizeDiagramSvg(svg) {
+        const svgConfig = {
+          USE_PROFILES: { html: true, svg: true, svgFilters: true },
+          ADD_TAGS: ["foreignObject"],
+          ALLOW_UNKNOWN_PROTOCOLS: false,
+        };
+        const htmlConfig = { USE_PROFILES: { html: true }, ALLOW_UNKNOWN_PROTOCOLS: false };
+
+        const source = svg.cloneNode(true);
+        const labels = [];
+        source.querySelectorAll("foreignObject").forEach((foreignObject) => {
+          labels.push(DOMPurify.sanitize(foreignObject.innerHTML, htmlConfig));
+          foreignObject.replaceChildren();
+        });
+
+        const template = document.createElement("template");
+        template.innerHTML = DOMPurify.sanitize(source.outerHTML, svgConfig);
+        const safeSvg = template.content.firstElementChild;
+
+        const foreignObjects = safeSvg.querySelectorAll("foreignObject");
+        if (foreignObjects.length === labels.length) {
+          foreignObjects.forEach((foreignObject, index) => {
+            const label = document.createElement("template");
+            label.innerHTML = labels[index];
+            foreignObject.append(...label.content.childNodes);
           });
-        }).catch((err) => {
-          mermaidNodes.forEach((node) => {
+        }
+
+        safeSvg.querySelectorAll("a").forEach(unlink);
+        return safeSvg;
+      }
+
+      // Mermaid puts the node transform on the <a> wrapper it adds for a click
+      // action, so dropping the element would move the node to the origin. SVG
+      // links become plain groups that keep the geometry; HTML links inside a
+      // label are inline content and are replaced by what they contain.
+      function unlink(link) {
+        if (link.namespaceURI !== SVG_NAMESPACE) {
+          link.replaceWith(...link.childNodes);
+          return;
+        }
+
+        const group = document.createElementNS(SVG_NAMESPACE, "g");
+        for (const attribute of link.attributes) {
+          if (/(?:^|:)(?:href|target)$/i.test(attribute.name)) continue;
+          group.setAttribute(attribute.name, attribute.value);
+        }
+        group.append(...link.childNodes);
+        link.replaceWith(group);
+      }
+
+      // Diagrams are rendered one at a time so that a diagram that fails to parse
+      // only replaces itself with an error, instead of every diagram in the
+      // document reporting the same failure.
+      async function renderMermaidDiagrams() {
+        const mermaidNodes = [...markdownContent.querySelectorAll(".mermaid")];
+
+        for (const node of mermaidNodes) {
+          try {
+            await mermaid.run({ nodes: [node] });
+            node.querySelectorAll("svg").forEach((svg) => {
+              svg.replaceWith(sanitizeDiagramSvg(svg));
+            });
+          } catch (error) {
             const errorDiv = document.createElement("div");
             errorDiv.className = "mermaid-error";
-            errorDiv.textContent = `Mermaid parse error: ${err.message}`;
+            errorDiv.textContent = `Mermaid parse error: ${error.message}`;
             node.closest(".mermaid-container").replaceChildren(errorDiv);
-          });
-        });
+          }
+        }
       }
 
       function buildSandboxPreviewDocument(markdown, title) {
