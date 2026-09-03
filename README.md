@@ -24,7 +24,7 @@ A simple, lightweight web-based markdown previewer that renders `.md`, `.markdow
 
 1. Download `index.html`
 2. Open it in your web browser
-3. Drag a markdown file or folder onto the drop zone, or select a file or folder
+3. Drag a markdown file or folder anywhere onto the page, or select a file or folder
 4. View your rendered markdown instantly
 
 ### File Support
