@@ -1194,6 +1194,8 @@
         });
       }
 
+      const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
+
       // Mermaid draws node labels as HTML inside <foreignObject>. DOMPurify drops
       // HTML nested in SVG whether or not foreignObject itself is allowed, so the
       // label markup is sanitized on its own and restored after the surrounding
@@ -1226,10 +1228,27 @@
           });
         }
 
-        safeSvg.querySelectorAll("a").forEach((link) => {
-          link.replaceWith(...link.childNodes);
-        });
+        safeSvg.querySelectorAll("a").forEach(unlink);
         return safeSvg;
+      }
+
+      // Mermaid puts the node transform on the <a> wrapper it adds for a click
+      // action, so dropping the element would move the node to the origin. SVG
+      // links become plain groups that keep the geometry; HTML links inside a
+      // label are inline content and are replaced by what they contain.
+      function unlink(link) {
+        if (link.namespaceURI !== SVG_NAMESPACE) {
+          link.replaceWith(...link.childNodes);
+          return;
+        }
+
+        const group = document.createElementNS(SVG_NAMESPACE, "g");
+        for (const attribute of link.attributes) {
+          if (/(?:^|:)(?:href|target)$/i.test(attribute.name)) continue;
+          group.setAttribute(attribute.name, attribute.value);
+        }
+        group.append(...link.childNodes);
+        link.replaceWith(group);
       }
 
       // Diagrams are rendered one at a time so that a diagram that fails to parse
