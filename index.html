@@ -887,8 +887,10 @@
           throw new Error("The HTML sanitizer did not load. Check your internet connection and try again.");
         }
 
+        // Without the SVG profiles DOMPurify drops every inline <svg> whole, so a
+        // harmless figure only showed with Safe mode turned off.
         const sanitized = DOMPurify.sanitize(html, {
-          USE_PROFILES: { html: true },
+          USE_PROFILES: { html: true, svg: true, svgFilters: true },
           ALLOW_UNKNOWN_PROTOCOLS: false,
         });
         const removed = [...DOMPurify.removed].filter(
